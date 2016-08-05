@@ -1,6 +1,6 @@
 /**
 
-Copyright 2014-2015 Luciano Xumerle
+Copyright 2016 Luciano Xumerle
 
 This file is part of cnxrename.
 
@@ -21,448 +21,180 @@ along with cnxrename. If not, see http://www.gnu.org/licenses/.
 
 package it.ciano.cnxrename;
 
+import java.util.Arrays;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.regex.Pattern;
 import java.io.IOException;
 
 /**
- * Main class to rename files.
+ * The Main Class
  *
  * @author Luciano Xumerle
- * @version 0.5.0
+ * @version 0.0.1
  */
-public class CnxRename
-{
+public class CnxRename {
 
     /**
      * Informations used to print copyright string.
      */
-    final private static String version = "4.0.0b3";
-    final private static String date = "Aug 25, 2015";
-    final private static String copyright = "2015";
+    final private static String version = "5.0.0";
+    final private static String date = "Aug 5, 2016";
+    final private static String copyright = "2016";
     final private static String author = "Luciano Xumerle <luciano.xumerle@gmail.com>";
     final private static String name = "CNXRENAME";
 
-
     /**
-     * Regex to match multimedia file extension.
+     * Fixed String
      */
-    final static private String multimedia = "\\.(mp3|wma|ogg|wav|mp2|flac|ape|m4a|mp4)$";
-
-    /**
-     * Stores the source file list .
-     */
-    private static File[] srcFiles;
-
-    /**
-     * Strores file to be renamed and the destination name.
-     */
-    private static ArrayList <CnxString> renameFiles;
-
-
-    private static String question =
+    private final static String question =
         "\n== print [yes] to rename files or [help] to show help ==> ";
-    private static String noFileRename =
+    private final static String noFileRename =
         "\nNO FILEs RENAMED.\n\n";
 
-
     /**
-     * Main program.
-     *
-     * @param String input[]
+     * Program inputs
      */
+    static CommandLine PAR;
+    static CnxString[] FILE;
+
+    static int SIZE=-1;
+    static boolean rename=false;
+
     public static void main ( String input[] )
-    throws java.io.IOException
-    {
-        CommandLine par = myPar ( input );
-        if ( par != null )
-        {
-            // CnxString objects stores filenames to be renamed
-            // and destination filename
-            renameFiles = new ArrayList <CnxString> ();
+    throws java.io.IOException {
+        PAR=myPar(input);
 
-            // set quiet output
-            if ( !par.isSet ( "q" ) )
-            {
-                par.doMsg();
-                if ( par.isSet ( "v" ) )
-                    System.out.println ( par.toString() );
+        PAR.doMsg();
+        if(PAR.isSet( "h" ) || PAR.isSet( "help" )) {
+            PAR.doHelp();
+            return;
+        }
+
+        /**
+         * Import files/directories from m3u, filelist or cmmand line
+         */
+        if( PAR.isSet( "m3u" ) ) {
+            String[] tt = Str.readTXT ( PAR.getParValue("m3u") );
+            SIZE=tt.length;
+            FILE=new CnxString[SIZE];
+            for ( int i=0; i<SIZE; i++) {
+                int pos=i+1;
+                String dest=pos + "-";
+                if ( pos<10 )
+                    dest=0+dest;
+                FILE[i]=new CnxString( new File( tt[i] ), dest + tt[i] );
             }
-
-            // check for help options
-            if ( par.isSet ( "h" ) || par.isSet ( "help" ) )
-                par.doHelp( );
-            else
-            {
-                // when doTheWork == true the program can rename the files
-                boolean doTheWork=false;
-                if ( par.isSet ( "m3u" ) )
-                {
-                    String ff=par.getParValue ( "m3u" );
-                    if( ff.indexOf ( ".m3u" ) > 0 )
-                        doTheWork=doM3Uopt ( ff );
+        } else if( PAR.isSet( "ls" ) ) {
+            String[] tt = Str.readTXT ( PAR.getParValue("ls") );
+            SIZE=tt.length;
+            FILE=new CnxString[SIZE];
+            for ( int i=0; i<tt.length; i++)
+                FILE[i]=new CnxString( new File( tt[i] ) );
+        } else {
+            SIZE=PAR.getOptionalAdditionalParSize();
+            FILE=new CnxString[SIZE];
+            for( int i=1; i<=SIZE; i++ )
+                try {
+                    FILE[i-1]=new CnxString( new File( PAR.getOptionalAdditionalPar(i) ) );
+                } catch( IOException e ) {
+                    System.err.println("File or directory " + PAR.getOptionalAdditionalPar(i) + "not found!!!");
                 }
-                else
-                {
-                    // now get tke list of file
-                    doFindFile ( par );
+        }
 
-                    if ( par.isSet ( "txt" ) )
-                        doTheWork=doTXTopt(par.getParValue( "txt" ), par.isSet( "na" ) );
-                    if ( par.isSet ( "cue" ) )
-                        doTheWork=doCUE( par.getParValue( "cue" ) );
-                    else
-                        doTheWork=true;
-
-                    // CHECK VERBOSITY
-                    if ( par.isSet ( "v" )  && ! par.isSet ( "q" ) )
-                        System.out.println ( "List of files selected to rename\n"
-                                             + srcFiles.toString() );
-                    // DO RENAMING
+        /**
+         * process the txt option
+         */
+        if( PAR.isSet( "txt" ) ) {
+            CDDB txt = new CDDB ( PAR.getParValue( "txt" ), PAR.isSet( "na" ) );
+            if ( txt.isFileOK() ) {
+                String[] dests = txt.getDestination();
+                if ( dests.length == SIZE ) {
+                    for ( int i = 0; i < SIZE; i++ )
+                        FILE[i].setDest ( dests[ i ] );
+                    System.err.println ( "== Multimedia File renamed from CDDB file ==" );
+                } else {
+                    System.err.print ( "\n== SYNTAX ERROR processing CDDB file ==\n" );
                 }
-                if ( doTheWork ) doAllWork( par );
+            } else {
+                System.err.print ( "\n== ERROR on number of songs processing CDDB file ==\n\n" );
             }
         }
-    }
 
 
-    /**
-     * Prepares a CUE file using a CDDB file and the multimedia filelist.
-     *
-     * @param txtFile The CDDB file.
-     * @return
-     */
-    private static boolean doCUE ( String txtFile )
-    {
-        // get source file
-        String[] src = new String[renameFiles.size()];
-        for (  int i=0; i<renameFiles.size(); i++)
-            src[i]=renameFiles.get(i).getSrc();
-
-        try
-        {
-            CDDB txt = new CDDB ( txtFile, false );
-            txt.doCUE( src );
-        }
-        catch (IOException e)
-        {
-        }
-        // return false to not rename file
-        return false;
-    }
-
-
-    /**
-     * Prepare multimedia filenames to be renamed using a CDDB file.
-     *
-     * @param txtFile Filename.
-     * @param noAuthor Print author in destination filename.
-     * @return true or false.
-     */
-    private static boolean doTXTopt ( String txtFile, boolean noAuthor )
-    throws java.io.IOException
-    {
-        // get the filename from txt file
-        CDDB txt = new CDDB ( txtFile, noAuthor );
-        String[] dests = txt.getDestination();
-
-        // do the work
-        if ( txt.isFileOK() && dests.length == renameFiles.size() )
-        {
-            for ( int i = 0; i < dests.length; i++ )
-                renameFiles.get ( i ).setDest ( dests[ i ] );
-            System.err.println ( "== Multimedia File renamed from CDDB file ==" );
-        }
-        else
-        {
-            if ( !txt.isFileOK() )
-                System.err.print ( "\n== SYNTAX ERROR processing CDDB file ==\n" );
-            else
-                System.err.print ( "\n== ERROR on number of songs processing CDDB file ==\n" );
-            System.err.print ( noFileRename );
-            return false;
-        }
-        return true;
-    }
-
-
-    /**
-     * Adds the file position as prefix using the M3U playlist.
-     *
-     * @param m3u The filename.
-     * @return true or false.
-     */
-    private static boolean doM3Uopt ( String m3u )
-    throws java.io.IOException
-    {
-        String[] fileLines = Str.readTXT ( m3u );
-        int counter = 1;
-        for ( int i = 0; i < fileLines.length; i++ )
-        {
-            String cur = fileLines[i].trim();
-            if ( cur.equals ( "" )
-            || cur.indexOf ( "#" ) == 0 )
-                continue;
-            String dd[] = Str.getFilenameExtension ( cur );
-            String prefix = counter + "-";
-            if ( counter < 10 )
-                prefix = 0 + prefix;
-            if ( cur.indexOf ( prefix ) != 0 )
-                dd[0] = prefix + dd[0];
-            File file = new File ( cur );
-            file = new File ( file.getAbsolutePath() );
-            if ( file.exists() )
-            {
-                renameFiles.add ( new CnxString ( file, dd[0] ) );
-                counter++;
+        /**
+         * process the CUE option
+         */
+        if( PAR.isSet( "cue" ) ) {
+            CDDB txt = new CDDB ( PAR.getParValue( "cue" ), false );
+            if ( txt.isFileOK() && txt.getSongNumber() == SIZE ) {
+                System.out.println(txt.getCUEheader());
+                for( int i=0; i<SIZE; i++ )
+                    System.out.println( txt.getCUEsong ( FILE[i].getName(), i ) );
+            } else {
+                System.err.println ( "ERROR: Bad txt file or wrong number of files and songs!" );
             }
-            else
-            {
-                System.err.println("File " + cur + " in m3u file not found!!!");
-                return false;
-            }
+            return;
         }
-        return true;
-    }
 
+        /**
+         * Set the replace strings if present
+         */
+        String search="";
+        String replace="";
+        if ( PAR.isSet("s") ) search=PAR.getParValue("s");
+        if ( PAR.isSet("r") ) replace=PAR.getParValue("r");
 
-    /**
-     * Renames the files using the given parameters
-     *
-     * @param par
-     */
-    private static void doAllWork ( CommandLine par )
-    {
-        String par1 = par.getOptionalAdditionalPar ( 1 );
-        String par2 = par.getOptionalAdditionalPar ( 2 );
-        boolean renameSomeFiles = false;
-
-        // for each file to be renamed we apply the parameters
-        // updating the CnxString objects.
-        for ( int i = 0; i < renameFiles.size(); i++ )
-        {
-            // SET CASE INSENSITIVE AND/OR GLOBAL REPLACING
-            if ( par1 != "" )
-            {
-                if ( par.isSet ( "ci" ) )
-                    renameFiles.get ( i ).setCaseInsensitive();
-                if ( par.isSet ( "g" ) )
-                    renameFiles.get ( i ).setGlobalReplace();
-                renameFiles.get ( i ).replaceDest ( par1, par2 );
+        /**
+         * PARSE ALL THE OTHER OPTIONS AND SET DESTINATION NAMES
+         */
+        for ( int i=0; i<SIZE; i++ ) {
+            if ( ! search.equals("")  ) {
+                if( PAR.isSet("ci") ) FILE[i].setCaseInsensitive();
+                if( PAR.isSet("g") ) FILE[i].setGlobalReplace();
+                if( PAR.isSet("d") ) FILE[i].setRenameDir();
+                FILE[i].replaceDest( search, replace );
             }
+
+            if ( PAR.isSet("ns") ) FILE[i].destNoSpace();
+            else if ( PAR.isSet("ds")  ) FILE[i].destDummySpace();
+
+            if ( PAR.isSet("cp") ) FILE[i].destCapitalize();
+            else if ( PAR.isSet("-m1") ) FILE[i].destMp3o1();
+            else if ( PAR.isSet("-m2") ) FILE[i].destMp3o2();
+            else if ( PAR.isSet("-m3") ) FILE[i].destMp3o3();
+            else if ( PAR.isSet("-m4") ) FILE[i].destMp3o4();
+
+            if ( PAR.isSet("uc") ) FILE[i].destUpperCase();
+            else if ( PAR.isSet("lc") ) FILE[i].destLowerCase();
 
             /**
-             * Now the program checks all the parameters
+             * PREVIEW RESULT
              */
-
-            // -u option
-            if ( par.isSet ( "u" ) )
-                renameFiles.get ( i ).destUnderscore();
-
-            // -rp
-            if ( par.isSet ( "rp" ) )
-                renameFiles.get ( i ).destSwapPos ( par.getParValue ( "rp" ) );
-
-            // -ps
-            if ( par.isSet ( "ps" ) )
-                renameFiles.get ( i ).destReplaceChar ( par.getParValue ( "ps" ) );
-
-            // -ai
-            if ( par.isSet ( "ai" ) )
-                renameFiles.get ( i ).getSequenceName ( par.getParValue ( "ai" ), i + 1 );
-
-            // -pf
-            if ( par.isSet ( "pf" ) )
-                renameFiles.get ( i ).addPrefix ( par.getParValue ( "pf" ) );
-
-            // -sf
-            if ( par.isSet ( "sf" ) )
-                renameFiles.get ( i ).addSuffix ( par.getParValue ( "sf" ) );
-
-            // -ne
-            if ( par.isSet ( "ne" ) )
-                renameFiles.get ( i ).destNewExtension ( par.getParValue ( "ne" ) );
-
-
-            /**
-             * RENAME MODES
-             */
-            if ( !par.isSet ( "dummy" ) )
-            {
-                if ( par.isSet ( "cp" ) )
-                {
-                    renameFiles.get ( i ).destCapitalize();
-                    renameFiles.get ( i ).setGlobalReplace();
-                    renameFiles.get ( i ).replaceDest ( "\\s+", "_" );
-                }
-                else if ( par.isSet ( "o1" ) )
-                {
-                    if ( !par.isSet ( "ka" ) )
-                        renameFiles.get ( i ).deleteApostrophe();
-                    renameFiles.get ( i ).destMp3o1();
-                }
-                else if ( par.isSet ( "o2" ) )
-                {
-                    if ( !par.isSet ( "ka" ) )
-                        renameFiles.get ( i ).deleteApostrophe();
-                    renameFiles.get ( i ).destMp3o2();
-                }
-                else if ( par.isSet ( "o3" ) )
-                {
-                    if ( !par.isSet ( "ka" ) )
-                        renameFiles.get ( i ).deleteApostrophe();
-                    renameFiles.get ( i ).destMp3o3();
-                }
-                else if ( par.isSet ( "o4" ) )
-                {
-                    if ( !par.isSet ( "ka" ) )
-                        renameFiles.get ( i ).deleteApostrophe();
-                    renameFiles.get ( i ).destMp3o4();
-                }
-                else if ( par.isSet ( "o5" ) )
-                    renameFiles.get ( i ).destMp3o5();
-                else
-                {
-                    if ( !par.isSet ( "ka" ) )
-                        renameFiles.get ( i ).deleteApostrophe();
-                    renameFiles.get ( i ).destMp3o1();
-                }
-            }
-
-            // now the filename is well formed but
-            // we can set if filename is all Upper/Lower case
-            if ( par.isSet ( "lc" ) )
-                renameFiles.get ( i ).destLowerCase();
-            if ( par.isSet ( "uc" ) )
-                renameFiles.get ( i ).destUpperCase();
-
-            // PRINT RESULT
-            if ( ! renameFiles.get ( i ).srcISdest() )
-            {
-                if ( !par.isSet ( "test" ) )
-                    System.out.println ( renameFiles.get ( i ).toString() );
-                renameSomeFiles = true;
+            if ( ! FILE[i].srcISdest() ) {
+                rename=true;
+                System.err.println ( FILE[i].toString() );
             }
         }
 
-        // CHECK RENAME OPTIONS
-        if ( renameSomeFiles )
-        {
-            String ppp = "no";
-            if ( par.isSet ( "test" ) )
-                for ( int i = 0; i < renameFiles.size(); i++ )
-                {
-                    if ( ! renameFiles.get ( i ).srcISdest() )
-                        System.out.println ( renameFiles.get ( i ).getDest() );
-                }
-            else if ( par.isSet ( "auto" ) )
-                ppp = "yes";
-            else
-            {
-                System.err.print ( question );
-                ppp = Str.getInput();
-            }
+        /**
+         * ASK TO RENAME!!!
+         */
+        if ( rename ) {
+            String ppp="no";
+            System.err.print( "\n== print [yes] to rename files or [help] to show help ==> ");
+            ppp = Str.getInput();
 
-            // APPLY RENAME OPTIONS
-            if ( ppp.equals ( "yes" ) )
-            {
-                // renaming only file and stores directory in a new ArrayList
-                ArrayList <CnxString> d = new ArrayList <CnxString> ();
-                for ( int i = 0; i < renameFiles.size(); i++ )
-                {
-                    if (  renameFiles.get ( i ).isDir()  )
-                        d.add ( renameFiles.get ( i ) );
-                    else
-                        renameFiles.get ( i ).destRename();
-                }
-                // now renaming directories
-                for (int i=0; i<d.size(); i++)
-                    d.get(i).destRename();
-            }
-            else if ( ppp.equals ( "help" ) )
-                par.doHelp( );
-            else
-                System.err.print ( noFileRename );
+            // RENAME
+            if (ppp.equals("yes"))
+                if( PAR.isSet("d") ) Arrays.sort(FILE);
+            for ( int i = SIZE-1; i>=0 ; i-- )
+                FILE[i].destRename();
+        } else {
+            PAR.doHelp();
+            System.err.println( "==== ================ ====" );
+            System.err.println( "==== NO FILEs RENAMED ====" );
+            System.err.println( "==== ================ ====\n" );
         }
-        else
-            System.err.print ( noFileRename );
-
-        if ( par.isSet ( "t" ) ) testLength ( 64 );
-        else if ( par.isSet ( "t103" ) ) testLength ( 103 );
-    }
-
-
-    /**
-     * Tests for filename length.
-     *
-     * @param l The maximum lengh allowed.
-     */
-    private static void testLength ( int l )
-    {
-        boolean fileOK = true;
-        System.out.println ( "== List of files with length > " + l + " chars ==\n" );
-        for ( int i = 0; i < renameFiles.size(); i++ )
-        {
-            String pp = renameFiles.get ( i ).getDest();
-            if ( pp.length() > l )
-            {
-                fileOK = false;
-                System.out.println ( " - " + pp.length() + ": " + pp );
-            }
-        }
-        if ( fileOK )
-            System.out.println ( " - NO FILEs FOUND" );
-        System.out.println ( "" );
-    }
-
-
-    /**
-     * The method parsethe given directory and populate renameFiles and srcFiles.
-     *
-     * @param par The input parameters.
-     * @return true or false.
-     */
-    private static void doFindFile ( CommandLine par )
-    throws java.io.IOException
-    {
-        renameFiles = new ArrayList <CnxString> ();
-
-        // parse the current directory using absolute path
-        File file = new File ( "." );
-        file = new File ( file.getAbsolutePath() );
-        srcFiles=Str.find ( file, par.isSet ( "rd" ), par.isSet ( "f" ) );
-
-        // filename is multimedia file used by txt option
-        Pattern media = Pattern.compile ( multimedia, Pattern.CASE_INSENSITIVE );
-
-        // filename has no match with...
-        String inverseMatch = "^\\s+$";
-        if ( par.isSet ( "nm" ) )
-            inverseMatch = par.getParValue ( "nm" );
-        Pattern invMatch = getRegex ( inverseMatch, par.isSet ( "ci" ) );
-
-        // filename has match with
-        String match = "\\w+";
-        if ( par.isSet ( "m" ) )
-            match = par.getParValue ( "m" );
-        Pattern nMatch = getRegex ( match, par.isSet ( "ci" ) );
-
-        // parse the file list
-        for ( int i = 0; i < srcFiles.length; i++ )
-        {
-            String pp = srcFiles[ i ].getName ();
-            if ( pp.indexOf ( "." ) != 0
-            && !invMatch.matcher ( pp ).find()
-            && nMatch.matcher ( pp ).find() )
-            {
-                if ( (par.isSet ( "txt" ) || par.isSet ( "cue" ))
-                && !media.matcher ( pp ).find()  )
-                    continue;
-                renameFiles.add ( new CnxString ( srcFiles[ i ] ) );
-            }
-        }
-    }
+    } // END MAIN
 
 
     /**
@@ -471,52 +203,44 @@ public class CnxRename
      * @param input The command line arguments.
      * @return The CommandLine object.
      */
-    private static CommandLine myPar ( String[] input )
-    {
-        CommandLine parameter = new CommandLine ( 2 );
+    private static CommandLine myPar ( String[] input ) {
+        CommandLine parameter = new CommandLine ( -1 );
         parameter.addSintaxHelp ( "cnxrename [options] [regex [replace]]" );
         parameter.addMessageInfo ( name, version, date, copyright, author );
         parameter.addPar ( "h", "Print this help", false );
         parameter.addPar ( "help", "Print this help", false );
-        parameter.addPar ( "auto", "Automatic rename. No 'yes' required", false );
-        parameter.addPar ( "test", "test mode: show only the new filenames", false );
-        parameter.addPar ( "q", "Quiet. No verbose", false );
-        parameter.addPar ( "v", "More verbose", false );
-        parameter.addPar ( "t", "64 is the max name length for destination file", false );
-        parameter.addPar ( "t103", "103 is the max name length for destination file", false );
-        parameter.addWhiteHelpLine ( "t103" );
-        parameter.addPar ( "rd", "Recursive directory", false );
-        parameter.addPar ( "ci", "Match case insensitive", false );
-        parameter.addPar ( "g", "Subs all matched string in file", false );
-        parameter.addPar ( "f", "Rename only files (skip directory)", false );
-        parameter.addPar ( "m", "Match with <par>", true );
-        parameter.addPar ( "nm", "Skip files match with <par>", true );
-        parameter.addWhiteHelpLine ( "nm" );
-        parameter.addPar ( "dummy", "Rename in dummy mode (only replace)", false );
-        parameter.addPar ( "lc", "Rename all lower case", false );
-        parameter.addPar ( "uc", "Rename all upper case", false );
-        parameter.addPar ( "cp", "Rename with capitalize word", false );
-        parameter.addPar ( "o1", "Rename with MY format (default)", false );
-        parameter.addPar ( "o2", "Rename with space (_ to space)", false );
-        parameter.addPar ( "o3", "Rename with space", false );
-        parameter.addPar ( "o4", "Rename without space (foo_bar becomes FooBar)", false );
-        parameter.addPar ( "o5", "dummy + o3 options (_ to space)", false );
-        parameter.addWhiteHelpLine ( "o5" );
-        parameter.addPar ( "u", "Add underscore before upper case chars", false );
-        parameter.addPar ( "rp", "Swap position <n-m>", true );
-        parameter.addPar ( "ps", "Replace position with a string: <n-str>", true );
-        parameter.addPar ( "ai", "Make numbered filename <name-##-name.ext>", true );
-        parameter.addPar ( "pf", "Add a prefix to filename", true );
-        parameter.addPar ( "sf", "Add a suffix to filename", true );
-        parameter.addPar ( "ne", "Change filename extension <newExt>", true );
-        parameter.addPar ( "ka", "Do not remove the apostrophe from filename.", false );
-        parameter.addWhiteHelpLine ( "ka" );
+        parameter.addWhiteHelpLine ( "help" );
+
+        parameter.addPar ( "s", "Search regex string", true );
+        parameter.addPar ( "r", "Destination string", true );
+        parameter.addPar ( "ci", "String replace is case insensitive", false );
+        parameter.addPar ( "g", "String replace is global", false );
+        parameter.addPar ( "d", "Renames also directories", false );
+        parameter.addWhiteHelpLine ( "d" );
+
+        parameter.addPar ( "ns", "Replaces multiple spaces and '_' with underscore", false );
+        parameter.addPar ( "ds", "Replaces multiple spaces and '_' with space, and '-' with ' - '", false );
+        parameter.addPar ( "cp", "Capitalize words in filename", false );
+        parameter.addPar ( "m1", "Rename with multimedia format", false );
+        parameter.addPar ( "m2", "Rename with -m1 but '_' is space", false );
+        parameter.addPar ( "m3", "Rename with -m1 but '_' is space and '-' is ' - '", false );
+        parameter.addPar ( "m4", "Rename with -m1 but 'foo_bar' becomes 'FooBar'", false );
+        parameter.addWhiteHelpLine ( "m4" );
+
+        parameter.addPar ( "uc", "Destination names are upper case", false );
+        parameter.addPar ( "lc", "Destination names are lower case", false );
+        parameter.addWhiteHelpLine ( "lc" );
+
+        parameter.addPar ( "m3u", "load file order from <m3u file> and add poition as prefix", true );
+        parameter.addPar ( "ls", "Load input file list from file", true );
+        parameter.addWhiteHelpLine ( "ls" );
+
         parameter.addPar ( "txt", "load dest name from <CDDB file>", true );
         parameter.addPar ( "na", "no autor in filename with 'txt' option", false );
-        parameter.addPar ( "m3u", "load file order from <m3u file> and add poition as prefix", true );
-        parameter.addWhiteHelpLine ( "m3u" );
+        parameter.addWhiteHelpLine ( "na" );
         parameter.addPar ( "cue", "du the CUE using <txt_file> and wavs in current directory", true );
-        parameter.addPar ( "updateCUE", "Update the CUE using wavs in current directory", true );
+        // parameter.addPar ( "updateCUE", "Update the CUE using wavs in current directory", true );
+
         parameter.parsePar ( input );
 
         if ( parameter.checkPar() )
@@ -526,20 +250,4 @@ public class CnxRename
         return null;
     }
 
-
-    /**
-     * Sets a regex.
-     *
-     * @param regex The regex string.
-     * @param caseInsensitive true or false.
-     * @return The compiled Pattern.
-     */
-    final private static Pattern getRegex ( String regex, boolean caseInsensitive )
-    {
-        if ( caseInsensitive )
-            return Pattern.compile ( regex, Pattern.CASE_INSENSITIVE );
-        return Pattern.compile ( regex );
-    }
-
-
-} // CLOSE CLASS
+} // END CLASS

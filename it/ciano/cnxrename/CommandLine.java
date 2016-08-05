@@ -1,23 +1,10 @@
 /**
-
-Copyright 2014-2015 Luciano Xumerle
-
-This file is part of cnxrename.
-
-cnxrename is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published
-by the Free Software Foundation, either version 3 of the License,
-or (at your option) any later version.
-
-cnxrename is distributed in the hope that it will be useful, but
-WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with cnxrename. If not, see http://www.gnu.org/licenses/.
-
-**/
+ * file name  : it/ciano/cnxrename/CommandLine.java
+ * authors    : Luciano Xumerle
+ * created    : mar 15 apr 2014 16:17:17 CEST
+ * copyright  : GPL3
+ *
+ */
 
 package it.ciano.cnxrename;
 
@@ -29,10 +16,9 @@ import java.lang.StringBuffer;
  * Simple class to manage the CLI arguments.
  *
  * @author Luciano Xumerle
- * @version 0.3.0
+ * @version 0.4.0
  */
-public class CommandLine
-{
+public class CommandLine {
     // get the par position into the list
     private HashMap <String,String[]> _pars;
 
@@ -59,11 +45,10 @@ public class CommandLine
     /**
      * Class constructor.
      *
-     * @param numOfPar How many fields are not to be consider parameters.
+     * @param numOfPar How many fields are not to be consider parameters. Use -1 to hane no limit.
      * @param startYearOnCopyrigth Copyright year.
      */
-    public CommandLine ( int numOfPar, String startYearOnCopyrigth )
-    {
+    public CommandLine ( int numOfPar, String startYearOnCopyrigth ) {
         _numberOfParameters=numOfPar;
 
         _pars=new HashMap <String,String[]> ();
@@ -82,8 +67,7 @@ public class CommandLine
      *
      * @param numOfPar How many fields are not to be consider parameters.
      */
-    public CommandLine ( int numOfPar )
-    {
+    public CommandLine ( int numOfPar ) {
         this ( numOfPar, "1970" );
     }
 
@@ -95,8 +79,7 @@ public class CommandLine
      * @param help The help String.
      * @param withValue true or false.
      */
-    public void addPar ( String parname, String help, boolean withValue )
-    {
+    public void addPar ( String parname, String help, boolean withValue ) {
 
         String wv="n";
         if (  withValue ) wv="y";
@@ -114,10 +97,8 @@ public class CommandLine
      *
      * @param parameter Parameter's name.
      */
-    public boolean addWhiteHelpLine ( String parameter )
-    {
-        if ( _pars.containsKey( parameter ) )
-        {
+    public boolean addWhiteHelpLine ( String parameter ) {
+        if ( _pars.containsKey( parameter ) ) {
             String[] t = _pars.get( parameter );
             t[3]="y";
             _pars.put ( parameter, t );
@@ -132,8 +113,7 @@ public class CommandLine
      *
      * @param str The str to be appened.
      */
-    public void addSintaxHelp ( String str )
-    {
+    public void addSintaxHelp ( String str ) {
         syntaxHelp.append ( "SYNTAX:\n" ).append ( str ).append ( "\n" ).append ( "\nOPTIONS:\n" );
     }
 
@@ -147,8 +127,7 @@ public class CommandLine
      * @param cp Copyright.
      * @param auth Author.
      */
-    public void addMessageInfo ( String name, String version, String date, String cp, String auth )
-    {
+    public void addMessageInfo ( String name, String version, String date, String cp, String auth ) {
         String yy = startYear;
         if ( !startYear.equals ( cp ) )
             yy += "-" + cp;
@@ -171,8 +150,7 @@ public class CommandLine
      *
      * @return true or false.
      */
-    public boolean checkPar()
-    {
+    public boolean checkPar() {
         return paramOK;
     }
 
@@ -183,10 +161,8 @@ public class CommandLine
      * @param parameter Parameter's name.
      * @return true or false.
      */
-    public boolean setSelected ( String parameter )
-    {
-        if ( _pars.containsKey( parameter ) )
-        {
+    public boolean setSelected ( String parameter ) {
+        if ( _pars.containsKey( parameter ) ) {
             String[] t = _pars.get( parameter );
             t[4]="y";
             _pars.put ( parameter, t );
@@ -202,10 +178,8 @@ public class CommandLine
      * @param par Parameter's name.
      * @return true or false.
      */
-    public boolean isSet ( String parameter )
-    {
-        if ( _pars.containsKey( parameter ) )
-        {
+    public boolean isSet ( String parameter ) {
+        if ( _pars.containsKey( parameter ) ) {
             String[] t = _pars.get( parameter );
             return ( t[4].equals("y")  );
         }
@@ -220,10 +194,8 @@ public class CommandLine
      * @param value Parameter's value.
      * @return true or false.
      */
-    public boolean setValue ( String parameter, String value )
-    {
-        if ( _pars.containsKey( parameter ) )
-        {
+    public boolean setValue ( String parameter, String value ) {
+        if ( _pars.containsKey( parameter ) ) {
             String[] t = _pars.get( parameter );
             t[0]=value;
             _pars.put ( parameter, t );
@@ -239,10 +211,8 @@ public class CommandLine
      * @param parameter Parameter's name.
      * @return true or false.
      */
-    public boolean parWithValue ( String parameter )
-    {
-        if ( _pars.containsKey( parameter ) )
-        {
+    public boolean parWithValue ( String parameter ) {
+        if ( _pars.containsKey( parameter ) ) {
             String[] t = _pars.get( parameter );
             return ( t[2].equals("y") );
         }
@@ -259,24 +229,19 @@ public class CommandLine
      *
      * @param input args string[].
      */
-    public void parsePar ( String[] input )
-    {
+    public void parsePar ( String[] input ) {
         boolean ret = true;
         String nextpar = "0";
-        for ( int i = 0; i < input.length; i++ )
-        {
-            if ( nextpar.equals ( "0" ) )
-            {
+        for ( int i = 0; i < input.length; i++ ) {
+            if ( nextpar.equals ( "0" ) ) {
                 boolean ispar = false;
                 String cpar = trimParameter ( input[ i ] );
 
-                if ( !cpar.equals ( "" ) && _pars.containsKey ( cpar ) )
-                {
+                if ( !cpar.equals ( "" ) && _pars.containsKey ( cpar ) ) {
                     ispar = true;
                     setSelected ( cpar );
 
-                    if ( parWithValue ( cpar ) )
-                    {
+                    if ( parWithValue ( cpar ) ) {
                         nextpar = "1";
                         if ( ( i + 1 ) < input.length )
                             setValue ( cpar, input[ i + 1 ] );
@@ -285,20 +250,18 @@ public class CommandLine
                     }
                 }
 
-                if ( !ispar )
-                {
-                    if ( _addpar.size() < _numberOfParameters )
+                if ( !ispar ) {
+                    if ( _numberOfParameters < 0 || _addpar.size() < _numberOfParameters )
                         _addpar.add ( input[ i ] );
                     else
                         ret = false;
                 }
-            }
-            else
+            } else
                 nextpar = "0";
         }
 
         // SET TO EMPTY STRING UNDEFINED PAR
-        for ( int i = _addpar.size(); i < _numberOfParameters; i++ )
+        while( _addpar.size() < _numberOfParameters )
             _addpar.add ( "" );
 
         // SET paramOk
@@ -312,11 +275,21 @@ public class CommandLine
      * @param i Parameter's position.
      * @return A string.
      */
-    public String getOptionalAdditionalPar ( int i )
-    {
+    public String getOptionalAdditionalPar ( int i ) {
         if ( i > 0 && i <= _addpar.size() )
             return  _addpar.get ( i - 1 );
         return "";
+    }
+
+
+    /**
+     * Returns the additional parameter if set, else the empty string.
+     *
+     * @param i Parameter's position.
+     * @return A string.
+     */
+    public int getOptionalAdditionalParSize () {
+        return _addpar.size();
     }
 
 
@@ -326,10 +299,8 @@ public class CommandLine
      * @param parameter Parameter's name.
      * @return The value.
      */
-    public String getParValue ( String parameter )
-    {
-        if ( _pars.containsKey( parameter ) )
-        {
+    public String getParValue ( String parameter ) {
+        if ( _pars.containsKey( parameter ) ) {
             String[] t = _pars.get( parameter );
             return t[0];
         }
@@ -342,15 +313,13 @@ public class CommandLine
      *
      * @return A string.
      */
-    public String toString()
-    {
+    public String toString() {
         String pp = "PARAMETERS:\n";
         for ( int i = 0; i < _addpar.size(); i++ )
             pp += "- parameter " + ( i + 1 ) + " is : " + _addpar.get ( i ) + "\n";
 
         pp += "Options:\n";
-        for ( int i = 0; i < _order.size(); i++ )
-        {
+        for ( int i = 0; i < _order.size(); i++ ) {
             String tt=_order.get(i);
             String[] cpar = _pars.get ( tt );
             pp += "- option " + tt;
@@ -366,8 +335,7 @@ public class CommandLine
     /**
      * Print to the STDERR the help message.
      */
-    public void doMsg ( )
-    {
+    public void doMsg ( ) {
         System.err.println ( messageHelp );
     }
 
@@ -375,10 +343,8 @@ public class CommandLine
     /**
      * The method prints the help.
      */
-    public void doHelp()
-    {
-        for ( int i = 0; i < _order.size(); i++ )
-        {
+    public void doHelp() {
+        for ( int i = 0; i < _order.size(); i++ ) {
             String cpar = _order.get( i );
             String[] tt = _pars.get(cpar);
             String space = "";
@@ -402,8 +368,7 @@ public class CommandLine
      * @param par String.
      * @return String without starting dash.
      */
-    private static String trimParameter ( String par )
-    {
+    private static String trimParameter ( String par ) {
         if ( par.startsWith ( "-" ) )
             return par.substring ( 1 );
         else if ( par.startsWith ( "--" ) )

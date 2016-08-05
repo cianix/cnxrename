@@ -1,6 +1,8 @@
 all: clean
+	astyle -q -A2 it/ciano/cnxrename/*.java
 	javac -encoding UTF-8 it/ciano/cnxrename/*java
 	jar cfm cnxrename.jar Manifest.txt it/ciano/cnxrename/*class
+	rm -f it/ciano/cnxrename/*orig it/ciano/cnxrename/*class
 
 install: all
 	mkdir /usr/local/share/cnxrename
@@ -10,4 +12,4 @@ install: all
 	chmod 755 /usr/local/bin/cnxrename
 
 clean:
-	rm -f it/ciano/cnxrename/*class cnxrename.jar
+	rm -f it/ciano/cnxrename/*orig it/ciano/cnxrename/*class cnxrename.jar

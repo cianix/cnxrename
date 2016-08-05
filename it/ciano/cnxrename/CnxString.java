@@ -1,23 +1,10 @@
 /**
-
-Copyright 2014-2015 Luciano Xumerle
-
-This file is part of cnxrename.
-
-cnxrename is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published
-by the Free Software Foundation, either version 3 of the License,
-or (at your option) any later version.
-
-cnxrename is distributed in the hope that it will be useful, but
-WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with cnxrename. If not, see http://www.gnu.org/licenses/.
-
-**/
+ * file name  : it/ciano/cnxrename/CnxString.java
+ * authors    : Luciano Xumerle
+ * created    : mar 15 apr 2014 11:43:03 CEST
+ * copyright  : GPL3
+ *
+ */
 
 package it.ciano.cnxrename;
 
@@ -34,18 +21,17 @@ import java.util.Arrays;
  * Class to manage filename renaming.
  *
  * @author Luciano Xumerle
- * @version 0.5.0
+ * @version 0.6.0
  */
-public class CnxString
-{
-    private String src;
+public class CnxString extends File {
+
+    // destination name and file extension
     private String dest;
     private String ext;
-    private String path;
-    private File file;
 
     private boolean _caseInsensitive = false;
     private boolean _global = false;
+    private boolean _renameDir = false;
 
 
     /**
@@ -54,8 +40,7 @@ public class CnxString
      * @param ff The file to be renamed.
      */
     public CnxString ( File ff )
-    throws java.io.IOException
-    {
+    throws java.io.IOException {
         this ( ff, "" );
     }
 
@@ -67,12 +52,9 @@ public class CnxString
      * @param destination New filename.
      */
     public CnxString ( File ff, String destination )
-    throws java.io.IOException
-    {
-        file = new File ( ff.getCanonicalPath() );
-        path = file.getParent() + File.separator;
-        src = file.getName();
-        String[] tt=Str.getFilenameExtension(src);
+    throws java.io.IOException {
+        super( ff.getCanonicalPath() );
+        String[] tt=Str.getFilenameExtension( getName() );
         ext = tt[1].toLowerCase();
         if ( destination.equals ( "" ) )
             dest = tt[0];
@@ -86,10 +68,9 @@ public class CnxString
      *
      * @return
      */
-    public String toString ()
-    {
+    public String toString () {
         StringBuilder res = new StringBuilder();
-        res.append ( src );
+        res.append ( getName() );
         res.append ( " --> " );
         res.append ( dest );
         res.append ( ext );
@@ -97,31 +78,18 @@ public class CnxString
     }
 
 
-    //
-    // return true if source File is a directory
-    //
-
-    /**
-     * Returns true if source File is a directory.
-     *
-     * @return true or false.
-     */
-    public boolean isDir()
-    {
-        return file.isDirectory();
-    }
-
-
     /**
      * Renames the file when destination is set.
      */
-    public void destRename()
-    {
+    public boolean destRename() {
+        if ( _renameDir == false && isDirectory() )
+            return false;
         StringBuilder res = new StringBuilder();
-        res.append ( path ).append ( dest ).append ( ext );
+        res.append ( getParent() ).append( File.separator ).append ( dest ).append ( ext );
         File temp = new File ( res.toString() );
         if ( ! temp.exists() )
-            file.renameTo ( temp );
+            return renameTo ( temp );
+        return false;
     }
 
 
@@ -130,8 +98,7 @@ public class CnxString
      *
      * @return The destination.
      */
-    public String getDest()
-    {
+    public String getDest() {
         StringBuilder res = new StringBuilder();
         res.append ( dest ).append ( ext );
         return res.toString();
@@ -139,21 +106,9 @@ public class CnxString
 
 
     /**
-     * Returns original filename.
-     *
-     * @return The sourc filename.
-     */
-    public String getSrc ()
-    {
-        return src;
-    }
-
-
-    /**
      * Match in string replacement is set to true.
      */
-    public void setCaseInsensitive()
-    {
+    public void setCaseInsensitive() {
         _caseInsensitive = true;
     }
 
@@ -161,9 +116,16 @@ public class CnxString
     /**
      * Replacing of a substring is set to global.
      */
-    public void setGlobalReplace()
-    {
+    public void setGlobalReplace() {
         _global = true;
+    }
+
+
+    /**
+     * If set also the directory will be renamed.
+     */
+    public void setRenameDir() {
+        _renameDir = true;
     }
 
 
@@ -174,8 +136,7 @@ public class CnxString
      * @param regex The regex to be replaced.
      * @param repl
      */
-    public void replaceDest ( String regex, String repl )
-    {
+    public void replaceDest ( String regex, String repl ) {
         Pattern p = null;
         if ( _caseInsensitive )
             p = Pattern.compile ( regex, Pattern.CASE_INSENSITIVE );
@@ -195,13 +156,10 @@ public class CnxString
      *
      * @return true or false.
      */
-    public boolean srcISdest ()
-    {
+    public boolean srcISdest () {
         StringBuilder res = new StringBuilder();
         res.append ( dest ).append ( ext );
-        if ( src.equals ( res.toString() ) )
-            return true;
-        return false;
+        return getName().equals( res.toString() );
     }
 
 
@@ -210,8 +168,7 @@ public class CnxString
      *
      * @param tt The destination filename.
      */
-    public void setDest ( String tt )
-    {
+    public void setDest ( String tt ) {
         dest = tt;
     }
 
@@ -219,8 +176,7 @@ public class CnxString
     /**
      * Destination is set as uppercase for all characters.
      */
-    public void destUpperCase()
-    {
+    public void destUpperCase() {
         dest = dest.toUpperCase();
     }
 
@@ -228,8 +184,7 @@ public class CnxString
     /**
      * Destination is set as lowercase for all characters.
      */
-    public void destLowerCase ()
-    {
+    public void destLowerCase () {
         dest = dest.toLowerCase();
     }
 
@@ -237,17 +192,8 @@ public class CnxString
     /**
      * Removes apostrophe from destination filename.
      */
-    public void deleteApostrophe()
-    {
-        StringBuilder buf = new StringBuilder();
-        char[] ch = dest.toCharArray ();
-        for ( int i = 0; i < ch.length; ++i )
-        {
-            if ( '\'' == ch[i] )
-                continue;
-            buf.append ( ch[i] );
-        }
-        dest = buf.toString();
+    public void deleteApostrophe() {
+        dest=Str.deleteApostrophe(dest);
     }
 
 
@@ -255,17 +201,8 @@ public class CnxString
      * Adds an underscore before uppercase characters.
      * FooBar will be Foo_Bar
      */
-    public void destUnderscore ( )
-    {
-        StringBuilder buf = new StringBuilder();
-        char[] ch = dest.toCharArray ();
-        for ( int i = 0; i < ch.length; ++i )
-        {
-            if ( Character.isUpperCase ( ch[ i ] ) )
-                buf.append ( '_' );
-            buf.append ( ch[ i ] );
-        }
-        dest=buf.toString ();
+    public void destUnderscore ( ) {
+        dest=Str.destUnderscore(dest);
     }
 
 
@@ -273,8 +210,25 @@ public class CnxString
      * Destination is capitalized.
      * Converts camel_case_versus_c to Camel_Case_Versus_C
      */
-    public void destCapitalize ()
-    {
+    public void destNoSpace () {
+        dest = Str.noSpace ( dest );
+    }
+
+
+    /**
+     * Destination is capitalized.
+     * Converts camel_case_versus_c to Camel_Case_Versus_C
+     */
+    public void destDummySpace () {
+        dest = Str.dummySpace ( dest );
+    }
+
+
+    /**
+     * Destination is capitalized.
+     * Converts camel_case_versus_c to Camel_Case_Versus_C
+     */
+    public void destCapitalize () {
         dest = Str.capitalize ( dest );
     }
 
@@ -282,8 +236,7 @@ public class CnxString
     /**
      * Converts camel_case_versus_è to Camel_Case_Versus_E
      */
-    public void destMp3o1 ()
-    {
+    public void destMp3o1 () {
         dest=Str.toMp3(dest);
     }
 
@@ -291,8 +244,7 @@ public class CnxString
     /**
      * Converts camel-case_versus_c to Camel-Case Versus C.
      */
-    public void destMp3o2 ()
-    {
+    public void destMp3o2 () {
         dest = Str.toMp3 ( dest ).replace ( "_", " " );
     }
 
@@ -300,8 +252,7 @@ public class CnxString
     /**
      * Converts camel-case_versus_c to Camel - Case Versus C.
      */
-    public void destMp3o3 ()
-    {
+    public void destMp3o3 () {
         dest = Str.toMp3 ( dest ).replace ( "_", " " ).replace ( "-", " - " );
     }
 
@@ -309,18 +260,8 @@ public class CnxString
     /**
      * Converts camel-case_versus_c to Camel-CaseVersusC.
      */
-    public void destMp3o4 ()
-    {
+    public void destMp3o4 () {
         dest =  Str.toMp3( dest ).replaceAll ( "[_ ]+", "" );
-    }
-
-
-    /**
-     * Works like dummy, but replacing multiple '_' and ' ' with space.
-     */
-    public void destMp3o5 ()
-    {
-        dest =  dest.replace("-"," - ").replaceAll ( "[_\\s]+", " " );
     }
 
 
@@ -329,8 +270,7 @@ public class CnxString
      *
      * @param newExt New extension.
      */
-    public void destNewExtension ( String newExt )
-    {
+    public void destNewExtension ( String newExt ) {
         ext = newExt.toLowerCase();
     }
 
@@ -340,29 +280,8 @@ public class CnxString
      *
      * @param pos
      */
-    public void destSwapPos ( String pos )
-    throws NumberFormatException
-    {
-        int[] ps = new int[ 2 ];
-        // FIND POSITIONS
-        String swap[] = Str.split ( pos, '-' );
-        if ( swap.length == 2 )
-        {
-            ps[ 0 ] = Integer.parseInt ( swap[ 0 ] ) - 1;
-            ps[ 1 ] = Integer.parseInt ( swap[ 1 ] ) - 1;
-        }
-        // SWAP POSITION
-        String temp[] = Str.split( dest, '-' );
-        if ( temp.length > ps[ 0 ] && temp.length > ps[ 1 ] )
-        {
-            String a = temp[ ps[ 1 ] ];
-            temp[ ps[ 1 ] ] = temp[ ps[ 0 ] ];
-            temp[ ps[ 0 ] ] = a;
-
-            dest=temp[0];
-            for (int i=1; i<temp.length; i++  )
-                dest = dest + '-' + temp[i];
-        }
+    public void destSwapPos ( String pos ) {
+        dest=Str.destSwapPos( dest, pos );
     }
 
 
@@ -372,8 +291,7 @@ public class CnxString
      * @param tt The String.
      * @param pos The number ##.
      */
-    public void getSequenceName ( String tt, int pos )
-    {
+    public void getSequenceName ( String tt, int pos ) {
         String pp = "";
         if ( pos > 9 )
             pp += pos;
@@ -388,8 +306,7 @@ public class CnxString
      *
      * @param param Param is a string "IntegerPosition-String".
      */
-    public void destReplaceChar ( String param )
-    {
+    public void destReplaceChar ( String param ) {
         String swap[] = Str.split( param, '-');
         dest = Str.replaceCharAtPosWithString ( dest, swap[1], Integer.parseInt ( swap[ 0 ] ) - 1 );
     }
@@ -400,8 +317,7 @@ public class CnxString
      *
      * @param prefix A string.
      */
-    public void addPrefix ( String prefix )
-    {
+    public void addPrefix ( String prefix ) {
         StringBuilder res = new StringBuilder();
         res.append ( prefix );
         res.append ( dest );
@@ -410,12 +326,11 @@ public class CnxString
 
 
     /**
-     * Adds a suffix tothe  filename.
+     * Adds a suffix to the  filename.
      *
      * @param suffix A string.
      */
-    public void addSuffix ( String suffix )
-    {
+    public void addSuffix ( String suffix ) {
         StringBuilder res = new StringBuilder();
         res.append ( dest );
         res.append ( suffix );
@@ -428,8 +343,7 @@ public class CnxString
      *
      * @return the file extension.
      */
-    public String getFileExt( )
-    {
+    public String getFileExt( ) {
         return ext;
     }
 

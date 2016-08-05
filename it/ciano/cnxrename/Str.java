@@ -1,23 +1,9 @@
-/**
-
-Copyright 2014-2015 Luciano Xumerle
-
-This file is part of cnxrename.
-
-cnxrename is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published
-by the Free Software Foundation, either version 3 of the License,
-or (at your option) any later version.
-
-cnxrename is distributed in the hope that it will be useful, but
-WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with cnxrename. If not, see http://www.gnu.org/licenses/.
-
-**/
+/* file name  : Str.java
+ * authors    : Luciano Xumerle
+ * created    : dom 15 nov 2015 00:56:13 CET
+ * copyright  : GPL3
+ *
+ */
 
 package it.ciano.cnxrename;
 
@@ -38,25 +24,20 @@ import java.util.Stack;
  * strings.
  *
  * @author LucianoXumerle
- * @version 0.10
+ * @version 0.2.0
  */
-public class Str
-{
+public class Str {
 
     /**
      * Gets a string from STDIN.
      *
      * @return The inserted string.
      */
-    public static String getInput()
-    {
-        try
-        {
+    public static String getInput() {
+        try {
             BufferedReader in = new BufferedReader ( new InputStreamReader ( System.in ) );
             return in.readLine().trim() ;
-        }
-        catch ( IOException e )
-        {
+        } catch ( IOException e ) {
             return "";
         }
     }
@@ -68,32 +49,28 @@ public class Str
      * @param filename The filename.
      * @return The String[].
      */
-    final public static String[] getFilenameExtension (String filename)
-    {
+    final public static String[] getFilenameExtension (String filename) {
         int pos = filename.lastIndexOf ('.');
         if (pos < 0)
-            return new String[]
-        {
-            filename, ""
-        };
+            return new String[] {
+                       filename, ""
+                   };
         char tt[] = filename.substring (pos).toCharArray ();
 
         // extension length > 1 and < 7 ( . class == 6 )
         if (tt.length > 1 && tt.length < 6 && tt[0] == '.')
             for (int i = 1; i < tt.length; i++)
                 if (!Character.isLetterOrDigit (tt[i]))
-                    return new String[]
-                {
-                    filename, ""
-                };
+                    return new String[] {
+                               filename, ""
+                           };
 
         if (pos - 4 > 0 && filename.substring (pos - 4, pos).equals (".tar"))
             pos = pos - 4;
 
-        return new String[]
-        {
-            filename.substring (0, pos), filename.substring (pos).toLowerCase ()
-        };
+        return new String[] {
+                   filename.substring (0, pos), filename.substring (pos).toLowerCase ()
+               };
     }
 
 
@@ -104,8 +81,7 @@ public class Str
      * @param separator The separator.
      * @return The output splitted String array.
      */
-    public static String[] split( String string, char separator )
-    {
+    public static String[] split( String string, char separator ) {
         int size=1;
         for (int i=0; i<string.length(); i++)
             if (string.charAt(i) == separator)
@@ -115,22 +91,96 @@ public class Str
         int index=0;
 
         StringBuilder s = new StringBuilder();
-        for (int i=0; i<string.length(); i++)
-        {
+        for (int i=0; i<string.length(); i++) {
             char t=string.charAt(i);
-            if ( t == separator )
-            {
+            if ( t == separator ) {
                 res[index] = s.toString();
                 index++;
                 s = new StringBuilder();
-            }
-            else
-            {
+            } else {
                 s.append(t);
             }
         }
         res[index]= s.toString();
         return res;
+    }
+
+
+    /**
+     * Replaces multiple spaces or underscores with a single space and adds space before and after
+     * a dash character if not present.
+     *
+     * @param a A string.
+     * @return The string with single whitespaces.
+     */
+    static String dummySpace ( String a ) {
+        StringBuilder buf = new StringBuilder();
+        char[] ch = a.trim().replace("-", " - ").toCharArray();
+        buf.append ( ch[ 0 ] );
+
+        for ( int i = 1; i < ch.length; ++i ) {
+            if (ch[i] == '_') ch[i]=' ';
+            if (Character.isWhitespace(ch[i])) {
+                if( Character.isWhitespace(ch[i-1]) )
+                    continue;
+            }
+            buf.append ( ch[i] );
+        }
+        return buf.toString();
+    }
+
+
+    /**
+     * Replaces all the whitespace with underscore from the given string.
+     *
+     * @param a A string.
+     * @return The string without whitespaces.
+     */
+    static String noSpace ( String a ) {
+        StringBuilder buf = new StringBuilder();
+        char[] ch = a.trim().toCharArray();
+        buf.append ( ch[ 0 ] );
+        for ( int i = 1; i < ch.length; ++i ) {
+            if (Character.isWhitespace(ch[i])) {
+                if(Character.isWhitespace(ch[i-1]) )
+                    continue;
+                buf.append ( '_' );
+            } else {
+                buf.append ( ch[i] );
+            }
+        }
+        return buf.toString();
+    }
+
+
+    /**
+     * Removes apostrophe chars from the destination filename.
+     */
+    public static String deleteApostrophe( String a ) {
+        StringBuilder buf = new StringBuilder();
+        char[] ch = a.toCharArray ();
+        for ( int i = 0; i < ch.length; ++i ) {
+            if ( '\'' == ch[i] || ch[i] == '`' || ch[i] == '’' )
+                continue;
+            buf.append ( ch[i] );
+        }
+        return buf.toString();
+    }
+
+
+    /**
+     * Adds an underscore before uppercase characters.
+     * FooBar will be Foo_Bar
+     */
+    public static String destUnderscore ( String a ) {
+        StringBuilder buf = new StringBuilder();
+        char[] ch = a.toCharArray ();
+        for ( int i = 0; i < ch.length; ++i ) {
+            if ( Character.isUpperCase ( ch[ i ] ) )
+                buf.append ( '_' );
+            buf.append ( ch[ i ] );
+        }
+        return buf.toString ();
     }
 
 
@@ -142,12 +192,10 @@ public class Str
      * @param pos Position of the char to be replaced.
      * @return The new string.
      */
-    public static String replaceCharAtPosWithString ( String s, String replace, int pos )
-    {
+    public static String replaceCharAtPosWithString ( String s, String replace, int pos ) {
         StringBuilder buf = new StringBuilder ();
         char[] ch1 = s.toCharArray ();
-        for ( int i = 0; i < ch1.length; ++i )
-        {
+        for ( int i = 0; i < ch1.length; ++i ) {
             if ( i == pos )
                 buf.append ( replace );
             else
@@ -158,13 +206,47 @@ public class Str
 
 
     /**
+     * Converts camel-case_versus_c to case_versus_c-camel.
+     *
+     * @param a The String to change.
+     * @param pos A string "num1-num2".
+     */
+    public static String destSwapPos ( String str, String pos ) {
+        int[] ps = new int[ 2 ];
+        // FIND POSITIONS
+        String swap[] = Str.split ( pos, '-' );
+        if ( swap.length == 2 ) {
+            try {
+                ps[ 0 ] = Integer.parseInt ( swap[ 0 ] ) - 1;
+                ps[ 1 ] = Integer.parseInt ( swap[ 1 ] ) - 1;
+            } catch( NumberFormatException e ) {
+                return str;
+            }
+        }
+
+        // SWAP POSITION
+        String temp[] = Str.split( str, '-' );
+        if ( temp.length > ps[ 0 ] && temp.length > ps[ 1 ] ) {
+            String a = temp[ ps[ 1 ] ];
+            temp[ ps[ 1 ] ] = temp[ ps[ 0 ] ];
+            temp[ ps[ 0 ] ] = a;
+
+            a=temp[0];
+            for (int i=1; i<temp.length; i++  )
+                a = a + '-' + temp[i];
+            return a;
+        }
+        return str;
+    }
+
+
+    /**
      * Returns true if the given string is an integer.
      *
      * @param s The input string.
      * @return true or false.
      */
-    final public static boolean isInteger ( String s )
-    {
+    final public static boolean isInteger ( String s ) {
         char[] a = s.trim().toCharArray();
         for ( int i=0; i<a.length; i++)
             if ( a[i]<'0' && a[i]>'9' )
@@ -181,23 +263,18 @@ public class Str
      * @param onlyFile If true, reports only file.
      * @return The File list.
      */
-    public static File[] find (  File path, boolean rec, boolean onlyFile )
-    {
+    public static File[] find (  File path, boolean rec, boolean onlyFile ) {
         ArrayList <File> a = new ArrayList <File> ();
         Stack<File> stack = new Stack<File>();
 
         for(File f : path.listFiles()) stack.push(f);
 
-        while(!stack.isEmpty())
-        {
+        while(!stack.isEmpty()) {
             File child = stack.pop();
-            if (rec && child.isDirectory())
-            {
+            if (rec && child.isDirectory()) {
                 for(File f : child.listFiles()) stack.push(f);
                 if ( !onlyFile )  a.add(child);
-            }
-            else if (child.isFile())
-            {
+            } else if (child.isFile()) {
                 a.add(child);
             }
         }
@@ -214,19 +291,15 @@ public class Str
      * @param filename The name of file.
      * @return The rows of file.
      */
-    final public static String[] readTXT ( String filename )
-    {
+    final public static String[] readTXT ( String filename ) {
         ArrayList <String> lines = new ArrayList <String> ();
-        try
-        {
+        try {
             String line;
             BufferedReader br = new BufferedReader ( new FileReader ( filename ) );
             while ( null != ( line = br.readLine() ) )
                 lines.add ( line.trim() );
             br.close();
-        }
-        catch ( IOException e )
-        {
+        } catch ( IOException e ) {
             return new String[0];
         }
         return lines.toArray ( new String[lines.size()] );
@@ -240,13 +313,11 @@ public class Str
      * @param strn input String.
      * @return Capitalized String.
      */
-    public static String capitalize ( String strn )
-    {
+    public static String capitalize ( String strn ) {
         StringBuilder buf = new StringBuilder();
         char[] ch = strn.toLowerCase().toCharArray();
         buf.append ( Character.toUpperCase ( ch[ 0 ] ) );
-        for ( int i = 1; i < ch.length; ++i )
-        {
+        for ( int i = 1; i < ch.length; ++i ) {
             if ( isPreUpperChar(ch[i-1]) )
                 buf.append ( Character.toUpperCase ( ch[i] ) );
             else
@@ -262,8 +333,7 @@ public class Str
      * @param strn The input string.
      * @return The managed string.
      */
-    final public static String toMp3 ( String strn )
-    {
+    final public static String toMp3 ( String strn ) {
         StringBuilder sb = new StringBuilder();
 
         final String dash = "[]{}():;&/\\-+";
@@ -271,23 +341,19 @@ public class Str
 
         StringTokenizer tok = new StringTokenizer(strn, dash);
 
-        while (tok.hasMoreTokens())
-        {
+        while (tok.hasMoreTokens()) {
             StringTokenizer part = new StringTokenizer( tok.nextToken(), space );
             int j=0;
             String t="";
-            while ( part.hasMoreTokens() )
-            {
+            while ( part.hasMoreTokens() ) {
                 if (j > 0)
                     sb.append('_');
                 String nn=part.nextToken();
 
                 if(nn.matches("(?i)^[ivx]+$"))
                     sb.append( nn.toUpperCase() );
-                else
-                {
-                    for (int ii = 0; ii < nn.length(); ii++)
-                    {
+                else {
+                    for (int ii = 0; ii < nn.length(); ii++) {
                         char s=Character.toLowerCase(nn.charAt(ii));
                         if ( s == 'à'
                                 || s == 'á'
@@ -361,8 +427,7 @@ public class Str
      * @param a The Char.
      * @return true or false.
      */
-    final private static boolean isPreUpperChar( char a )
-    {
+    final private static boolean isPreUpperChar( char a ) {
         return ( Character.isWhitespace(a)
                  || a == '-'
                  || a == '.'

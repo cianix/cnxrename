@@ -53,8 +53,8 @@ public class Str {
         int pos = filename.lastIndexOf ('.');
         if (pos < 0)
             return new String[] {
-            filename, ""
-        };
+                       filename, ""
+                   };
         char tt[] = filename.substring (pos).toCharArray ();
 
         // extension length > 1 and < 7 ( . class == 6 )
@@ -62,15 +62,15 @@ public class Str {
             for (int i = 1; i < tt.length; i++)
                 if (!Character.isLetterOrDigit (tt[i]))
                     return new String[] {
-                    filename, ""
-                };
+                               filename, ""
+                           };
 
         if (pos - 4 > 0 && filename.substring (pos - 4, pos).equals (".tar"))
             pos = pos - 4;
 
         return new String[] {
-            filename.substring (0, pos), filename.substring (pos).toLowerCase ()
-        };
+                   filename.substring (0, pos), filename.substring (pos).toLowerCase ()
+               };
     }
 
 
@@ -393,7 +393,7 @@ public class Str {
                             t=Character.toString(s);
 
                         // DO CAPITALIZE
-                        if ( ii==0 ||  isPreUpperChar( nn.charAt(ii-1 ) ))
+                        if ( ii==0 || isPreUpperChar( nn.charAt(ii-1 ) ))
                             sb.append(t.toUpperCase());
                         else
                             sb.append(t);
@@ -405,7 +405,7 @@ public class Str {
                 sb.append('-');
         }
 
-        String res= sb.toString();
+        String res = sb.toString();
         if (res.indexOf("Cd")>-1) res=res.replaceAll( "(?i)cd_*", "CD"  );
         if (res.indexOf("Lp")>-1) res=res.replaceAll( "(?i)lp_*", "LP"  );
         if (res.indexOf("Ep")>-1) res=res.replaceAll( "(?i)ep_*", "EP"  );

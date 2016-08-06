@@ -36,7 +36,7 @@ public class CnxRename {
     /**
      * Informations used to print copyright string.
      */
-    final private static String version = "5.0.1";
+    final private static String version = "5.0.2";
     final private static String date = "Aug 6, 2016";
     final private static String copyright = "2016";
     final private static String author = "Luciano Xumerle <luciano.xumerle@gmail.com>";
@@ -107,8 +107,6 @@ public class CnxRename {
             CDDB txt = new CDDB ( PAR.getParValue( "txt" ), PAR.isSet( "na" ) );
             if ( txt.isFileOK() ) {
                 String[] dests = txt.getDestination();
-                for ( int i = 0; i < dests.length; i++ )
-                    System.out.println( dests[i] +"      "+ SIZE  );
                 if ( dests.length == SIZE ) {
                     for ( int i = 0; i < SIZE; i++ )
                         FILE[i].setDest ( dests[ i ] );
@@ -158,17 +156,38 @@ public class CnxRename {
                 FILE[i].replaceDest( search, replace );
             }
 
-            if ( PAR.isSet("ns") ) FILE[i].destNoSpace();
-            else if ( PAR.isSet("ds")  ) FILE[i].destDummySpace();
+            String dest=FILE[i].getDest();
 
-            if ( PAR.isSet("cp") ) FILE[i].destCapitalize();
-            else if ( PAR.isSet("-m1") ) FILE[i].destMp3o1();
-            else if ( PAR.isSet("-m2") ) FILE[i].destMp3o2();
-            else if ( PAR.isSet("-m3") ) FILE[i].destMp3o3();
-            else if ( PAR.isSet("-m4") ) FILE[i].destMp3o4();
+            if ( PAR.isSet("px") )
+                dest=PAR.getParValue("px") + dest;
+            if ( PAR.isSet("sx") )
+                dest=dest + PAR.getParValue("sx");
 
-            if ( PAR.isSet("uc") ) FILE[i].destUpperCase();
-            else if ( PAR.isSet("lc") ) FILE[i].destLowerCase();
+            if ( ! PAR.isSet("ka") )
+                dest=dest.replace( '\'', '_' );
+
+            if ( PAR.isSet("ns") )
+                dest=Str.cleanString( dest, true ).trim().replace(' ', '_');
+            else if ( PAR.isSet("ds")  )
+                dest = Str.cleanString( dest, true ).replaceAll("-", " - ").trim();
+
+            if ( PAR.isSet("cp") )
+                dest = Str.capitalize ( dest );
+            else if ( PAR.isSet("-m1") )
+                dest=Str.toMp3(dest);
+            else if ( PAR.isSet("-m2") )
+                dest = Str.toMp3( dest ).replace ( "_", " " );
+            else if ( PAR.isSet("-m3") )
+                dest = Str.toMp3( dest ).replace( "_", " " ).replace ( "-", " - " );
+            else if ( PAR.isSet("-m4") )
+                dest =  Str.toMp3( dest ).replaceAll( "[_ ]+", "" );
+
+            if ( PAR.isSet("uc") )
+                dest = dest.toUpperCase();
+            else if ( PAR.isSet("lc") )
+                dest = dest.toLowerCase();
+
+            FILE[i].setDest(dest);
 
             /**
              * PREVIEW RESULT
@@ -219,10 +238,13 @@ public class CnxRename {
 
         parameter.addPar ( "s", "Search regex string", true );
         parameter.addPar ( "r", "Destination string", true );
+        parameter.addPar ( "px", "Add prefix to filename", true );
+        parameter.addPar ( "sx", "Add suffix to filename", true );
         parameter.addPar ( "ci", "String replace is case insensitive", false );
         parameter.addPar ( "g", "String replace is global", false );
         parameter.addPar ( "d", "Renames also directories", false );
-        parameter.addWhiteHelpLine ( "d" );
+        parameter.addPar ( "ka", "Not remove the accents from dest. name", false );
+        parameter.addWhiteHelpLine ( "ka" );
 
         parameter.addPar ( "ns", "Replaces multiple spaces and '_' with underscore", false );
         parameter.addPar ( "ds", "Replaces multiple spaces and '_' with space, and '-' with ' - '", false );

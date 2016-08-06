@@ -175,94 +175,11 @@ public class CnxString extends File {
 
 
     /**
-     * Destination is set as uppercase for all characters.
-     */
-    public void destUpperCase() {
-        dest = dest.toUpperCase();
-    }
-
-
-    /**
-     * Destination is set as lowercase for all characters.
-     */
-    public void destLowerCase () {
-        dest = dest.toLowerCase();
-    }
-
-
-    /**
-     * Removes apostrophe from destination filename.
-     */
-    public void deleteApostrophe() {
-        dest=Str.deleteApostrophe(dest);
-    }
-
-
-    /**
      * Adds an underscore before uppercase characters.
      * FooBar will be Foo_Bar
      */
     public void destUnderscore ( ) {
         dest=Str.destUnderscore(dest);
-    }
-
-
-    /**
-     * Destination is capitalized.
-     * Converts camel_case_versus_c to Camel_Case_Versus_C
-     */
-    public void destNoSpace () {
-        dest = Str.cleanString( dest, true ).trim().replace(' ', '_');
-    }
-
-
-    /**
-     * Destination is capitalized.
-     * Converts camel_case_versus_c to Camel_Case_Versus_C
-     */
-    public void destDummySpace () {
-        dest = Str.cleanString( dest, true ).replaceAll("-", " - ").trim();
-    }
-
-
-    /**
-     * Destination is capitalized.
-     * Converts camel_case_versus_c to Camel_Case_Versus_C
-     */
-    public void destCapitalize () {
-        dest = Str.capitalize ( dest );
-    }
-
-
-    /**
-     * Converts camel_case_versus_è to Camel_Case_Versus_E
-     */
-    public void destMp3o1 () {
-        dest=Str.toMp3(dest);
-    }
-
-
-    /**
-     * Converts camel-case_versus_c to Camel-Case Versus C.
-     */
-    public void destMp3o2 () {
-        dest = Str.toMp3 ( dest ).replace ( "_", " " );
-    }
-
-
-    /**
-     * Converts camel-case_versus_c to Camel - Case Versus C.
-     */
-    public void destMp3o3 () {
-        dest = Str.toMp3 ( dest ).replace ( "_", " " ).replace ( "-", " - " );
-    }
-
-
-    /**
-     * Converts camel-case_versus_c to Camel-CaseVersusC.
-     */
-    public void destMp3o4 () {
-        dest =  Str.toMp3( dest ).replaceAll ( "[_ ]+", "" );
     }
 
 
@@ -310,32 +227,6 @@ public class CnxString extends File {
     public void destReplaceChar ( String param ) {
         String swap[] = Str.split( param, '-');
         dest = Str.replaceCharAtPosWithString ( dest, swap[1], Integer.parseInt ( swap[ 0 ] ) - 1 );
-    }
-
-
-    /**
-     * Adds a prefix tothe  filename.
-     *
-     * @param prefix A string.
-     */
-    public void addPrefix ( String prefix ) {
-        StringBuilder res = new StringBuilder();
-        res.append ( prefix );
-        res.append ( dest );
-        dest = res.toString();
-    }
-
-
-    /**
-     * Adds a suffix to the  filename.
-     *
-     * @param suffix A string.
-     */
-    public void addSuffix ( String suffix ) {
-        StringBuilder res = new StringBuilder();
-        res.append ( dest );
-        res.append ( suffix );
-        dest = res.toString();
     }
 
 

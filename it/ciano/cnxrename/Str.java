@@ -53,8 +53,8 @@ public class Str {
         int pos = filename.lastIndexOf ('.');
         if (pos < 0)
             return new String[] {
-                       filename, ""
-                   };
+            filename, ""
+        };
         char tt[] = filename.substring (pos).toCharArray ();
 
         // extension length > 1 and < 7 ( . class == 6 )
@@ -62,15 +62,15 @@ public class Str {
             for (int i = 1; i < tt.length; i++)
                 if (!Character.isLetterOrDigit (tt[i]))
                     return new String[] {
-                               filename, ""
-                           };
+                    filename, ""
+                };
 
         if (pos - 4 > 0 && filename.substring (pos - 4, pos).equals (".tar"))
             pos = pos - 4;
 
         return new String[] {
-                   filename.substring (0, pos), filename.substring (pos).toLowerCase ()
-               };
+            filename.substring (0, pos), filename.substring (pos).toLowerCase ()
+        };
     }
 
 
@@ -245,8 +245,8 @@ public class Str {
      */
     final public static boolean isInteger ( String s ) {
         char[] a = s.trim().toCharArray();
-        for ( int i=0; i<a.length; i++)
-            if ( a[i]<'0' && a[i]>'9' )
+        for ( int i=0; i<a.length; i++ )
+            if ( a[i]<'0' || a[i]>'9' )
                 return false;
         return true;
     }

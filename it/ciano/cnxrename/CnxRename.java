@@ -107,15 +107,19 @@ public class CnxRename {
             CDDB txt = new CDDB ( PAR.getParValue( "txt" ), PAR.isSet( "na" ) );
             if ( txt.isFileOK() ) {
                 String[] dests = txt.getDestination();
+                for ( int i = 0; i < dests.length; i++ )
+                    System.out.println( dests[i] +"      "+ SIZE  );
                 if ( dests.length == SIZE ) {
                     for ( int i = 0; i < SIZE; i++ )
                         FILE[i].setDest ( dests[ i ] );
-                    System.err.println ( "== Multimedia File renamed from CDDB file ==" );
+                    System.err.println( "== Multimedia File renamed from CDDB file ==" );
                 } else {
-                    System.err.print ( "\n== SYNTAX ERROR processing CDDB file ==\n" );
+                    System.err.println( "\n== SYNTAX ERROR processing CDDB file ==\n" );
+                    return;
                 }
             } else {
-                System.err.print ( "\n== ERROR on number of songs processing CDDB file ==\n\n" );
+                System.err.println( "\n== ERROR on number of songs processing CDDB file ==\n\n" );
+                return;
             }
         }
 

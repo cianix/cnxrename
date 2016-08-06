@@ -56,10 +56,11 @@ public class CnxString extends File {
         super( ff.getCanonicalPath() );
         String[] tt=Str.getFilenameExtension( getName() );
         ext = tt[1].toLowerCase();
+
         if ( destination.equals ( "" ) )
-            dest = tt[0];
+            setDest(tt[0]);
         else
-            dest = destination;
+            setDest(destination);
     }
 
 
@@ -169,7 +170,7 @@ public class CnxString extends File {
      * @param tt The destination filename.
      */
     public void setDest ( String tt ) {
-        dest = tt;
+        dest = Str.cleanString(tt, false);
     }
 
 
@@ -211,7 +212,7 @@ public class CnxString extends File {
      * Converts camel_case_versus_c to Camel_Case_Versus_C
      */
     public void destNoSpace () {
-        dest = Str.noSpace ( dest );
+        dest = Str.cleanString( dest, true ).trim().replace(' ', '_');
     }
 
 
@@ -220,7 +221,7 @@ public class CnxString extends File {
      * Converts camel_case_versus_c to Camel_Case_Versus_C
      */
     public void destDummySpace () {
-        dest = Str.dummySpace ( dest );
+        dest = Str.cleanString( dest, true ).replaceAll("-", " - ").trim();
     }
 
 

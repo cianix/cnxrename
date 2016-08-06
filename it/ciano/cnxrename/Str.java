@@ -107,49 +107,46 @@ public class Str {
 
 
     /**
-     * Replaces multiple spaces or underscores with a single space and adds space before and after
-     * a dash character if not present.
+     * Replaces not ASCII dashes and quotes with "-" and "'".
      *
-     * @param a A string.
-     * @return The string with single whitespaces.
+     * @param s The input String.
+     * @param ns If true then multiple spaces are replaces with a single space.
+     * @return The cleaned String.
      */
-    static String dummySpace ( String a ) {
-        StringBuilder buf = new StringBuilder();
-        char[] ch = a.trim().replace("-", " - ").toCharArray();
-        buf.append ( ch[ 0 ] );
+    public static String cleanString( String s, boolean ns ) {
+        char[] ch = s.toCharArray();
+        for ( int i=0; i<ch.length; i++ )
+            if ( ch[i]=='–' )
+                ch[i]='-';
+            else if( ch[i]=='`' || ch[i]=='´' || ch[i]=='‘' || ch[i]=='’' )
+                ch[i]='\'';
 
-        for ( int i = 1; i < ch.length; ++i ) {
-            if (ch[i] == '_') ch[i]=' ';
-            if (Character.isWhitespace(ch[i])) {
-                if( Character.isWhitespace(ch[i-1]) )
-                    continue;
+        if (ns) {
+            boolean dash=false;
+            boolean space=false;
+            StringBuilder buf = new StringBuilder();
+
+            for ( int i = 0; i < ch.length; ++i ) {
+                if ( Character.isWhitespace(ch[i]) || ch[i] == '_' ) {
+                    ch[i]=' ';
+                    space=true;
+                } else if ( ch[i]=='-' ) {
+                    dash=true;
+                    space=false;
+                } else {
+                    if ( dash )
+                        buf.append ( '-' );
+                    else if ( space )
+                        buf.append ( ' ' );
+                    dash=false;
+                    space=false;
+                    buf.append ( ch[i] );
+                }
             }
-            buf.append ( ch[i] );
+            return buf.toString();
         }
-        return buf.toString();
-    }
 
-
-    /**
-     * Replaces all the whitespace with underscore from the given string.
-     *
-     * @param a A string.
-     * @return The string without whitespaces.
-     */
-    static String noSpace ( String a ) {
-        StringBuilder buf = new StringBuilder();
-        char[] ch = a.trim().toCharArray();
-        buf.append ( ch[ 0 ] );
-        for ( int i = 1; i < ch.length; ++i ) {
-            if (Character.isWhitespace(ch[i])) {
-                if(Character.isWhitespace(ch[i-1]) )
-                    continue;
-                buf.append ( '_' );
-            } else {
-                buf.append ( ch[i] );
-            }
-        }
-        return buf.toString();
+        return new String(ch);
     }
 
 
@@ -392,8 +389,6 @@ public class Str {
                             t="d";
                         else if ( s == 'ç')
                             t="c";
-                        else if ( s == '`' || s == '’')
-                            t="'";
                         else
                             t=Character.toString(s);
 

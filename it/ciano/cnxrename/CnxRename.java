@@ -36,8 +36,8 @@ public class CnxRename {
     /**
      * Informations used to print copyright string.
      */
-    final private static String version = "5.0.0";
-    final private static String date = "Aug 5, 2016";
+    final private static String version = "5.0.1";
+    final private static String date = "Aug 6, 2016";
     final private static String copyright = "2016";
     final private static String author = "Luciano Xumerle <luciano.xumerle@gmail.com>";
     final private static String name = "CNXRENAME";
@@ -184,10 +184,12 @@ public class CnxRename {
             ppp = Str.getInput();
 
             // RENAME
-            if (ppp.equals("yes"))
-                if( PAR.isSet("d") ) Arrays.sort(FILE);
-            for ( int i = SIZE-1; i>=0 ; i-- )
-                FILE[i].destRename();
+            if (ppp.equals("yes")) {
+                if( PAR.isSet("d") )
+                    Arrays.sort(FILE);
+                for ( int i = SIZE-1; i>=0 ; i-- )
+                    FILE[i].destRename();
+            }
         } else {
             PAR.doHelp();
             System.err.println( "==== ================ ====" );

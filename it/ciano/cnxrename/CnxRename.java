@@ -156,7 +156,7 @@ public class CnxRename {
                 FILE[i].replaceDest( search, replace );
             }
 
-            String dest=FILE[i].getDest();
+            String dest=Str.cleanString(FILE[i].getDestNoExt(), false);
 
             if ( PAR.isSet("px") )
                 dest=PAR.getParValue("px") + dest;
@@ -164,22 +164,22 @@ public class CnxRename {
                 dest=dest + PAR.getParValue("sx");
 
             if ( ! PAR.isSet("ka") )
-                dest=dest.replace( '\'', '_' );
+                dest=dest.replace( '\'', '\0' );
 
             if ( PAR.isSet("ns") )
-                dest=Str.cleanString( dest, true ).trim().replace(' ', '_');
+                dest=Str.cleanString( dest, true ).trim();
             else if ( PAR.isSet("ds")  )
-                dest = Str.cleanString( dest, true ).replaceAll("-", " - ").trim();
+                dest = Str.cleanString( dest, true ).replace('_', ' ').replaceAll("-", " - ").trim();
 
             if ( PAR.isSet("cp") )
                 dest = Str.capitalize ( dest );
-            else if ( PAR.isSet("-m1") )
+            else if ( PAR.isSet("m1") )
+                dest = Str.toMp3( dest ).replace ( ' ', '_' );
+            else if ( PAR.isSet("m2") )
                 dest=Str.toMp3(dest);
-            else if ( PAR.isSet("-m2") )
-                dest = Str.toMp3( dest ).replace ( "_", " " );
-            else if ( PAR.isSet("-m3") )
-                dest = Str.toMp3( dest ).replace( "_", " " ).replace ( "-", " - " );
-            else if ( PAR.isSet("-m4") )
+            else if ( PAR.isSet("m3") )
+                dest = Str.toMp3( dest ).replaceAll( "-", " - " );
+            else if ( PAR.isSet("m4") )
                 dest =  Str.toMp3( dest ).replaceAll( "[_ ]+", "" );
 
             if ( PAR.isSet("uc") )

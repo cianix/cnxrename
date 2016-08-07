@@ -75,38 +75,6 @@ public class Str {
 
 
     /**
-     * A more efficient split function.
-     *
-     * @param string Input String.
-     * @param separator The separator.
-     * @return The output splitted String array.
-     */
-    public static String[] split( String string, char separator ) {
-        int size=1;
-        for (int i=0; i<string.length(); i++)
-            if (string.charAt(i) == separator)
-                size++;
-
-        String[] res=new String[size];
-        int index=0;
-
-        StringBuilder s = new StringBuilder();
-        for (int i=0; i<string.length(); i++) {
-            char t=string.charAt(i);
-            if ( t == separator ) {
-                res[index] = s.toString();
-                index++;
-                s = new StringBuilder();
-            } else {
-                s.append(t);
-            }
-        }
-        res[index]= s.toString();
-        return res;
-    }
-
-
-    /**
      * Replaces not ASCII dashes and quotes with "-" and "'".
      *
      * @param s The input String.
@@ -147,21 +115,6 @@ public class Str {
         }
 
         return new String(ch);
-    }
-
-
-    /**
-     * Removes apostrophe chars from the destination filename.
-     */
-    public static String deleteApostrophe( String a ) {
-        StringBuilder buf = new StringBuilder();
-        char[] ch = a.toCharArray ();
-        for ( int i = 0; i < ch.length; ++i ) {
-            if ( '\'' == ch[i] || ch[i] == '`' || ch[i] == '’' )
-                continue;
-            buf.append ( ch[i] );
-        }
-        return buf.toString();
     }
 
 
@@ -209,24 +162,23 @@ public class Str {
      * @param pos A string "num1-num2".
      */
     public static String destSwapPos ( String str, String pos ) {
-        int[] ps = new int[ 2 ];
-        // FIND POSITIONS
-        String swap[] = Str.split ( pos, '-' );
-        if ( swap.length == 2 ) {
+        int id1 = str.indexOf("-");
+        int id2=-1;
+        if ( id1>-1 ) {
             try {
-                ps[ 0 ] = Integer.parseInt ( swap[ 0 ] ) - 1;
-                ps[ 1 ] = Integer.parseInt ( swap[ 1 ] ) - 1;
+                id2 = Integer.parseInt ( str.substring(id1+1) ) - 1;
+                id1 = Integer.parseInt ( str.substring(0,id1) ) - 1;
             } catch( NumberFormatException e ) {
                 return str;
             }
         }
 
         // SWAP POSITION
-        String temp[] = Str.split( str, '-' );
-        if ( temp.length > ps[ 0 ] && temp.length > ps[ 1 ] ) {
-            String a = temp[ ps[ 1 ] ];
-            temp[ ps[ 1 ] ] = temp[ ps[ 0 ] ];
-            temp[ ps[ 0 ] ] = a;
+        String temp[] = str.split( "-" );
+        if ( temp.length > id1 && temp.length > id2 ) {
+            String a = temp[ id1 ];
+            temp[ id2 ] = temp[ id1 ];
+            temp[ id1 ] = a;
 
             a=temp[0];
             for (int i=1; i<temp.length; i++  )
@@ -333,95 +285,146 @@ public class Str {
     final public static String toMp3 ( String strn ) {
         StringBuilder sb = new StringBuilder();
 
-        final String dash = "[]{}():;&/\\-+";
-        final String space = " _,.!?°#@~\"*%";
+        char[] ch = strn.toLowerCase().toCharArray();
 
-        StringTokenizer tok = new StringTokenizer(strn, dash);
-
-        while (tok.hasMoreTokens()) {
-            StringTokenizer part = new StringTokenizer( tok.nextToken(), space );
-            int j=0;
-            String t="";
-            while ( part.hasMoreTokens() ) {
-                if (j > 0)
-                    sb.append('_');
-                String nn=part.nextToken();
-
-                if(nn.matches("(?i)^[ivx]+$"))
-                    sb.append( nn.toUpperCase() );
-                else {
-                    for (int ii = 0; ii < nn.length(); ii++) {
-                        char s=Character.toLowerCase(nn.charAt(ii));
-                        if ( s == 'à'
-                                || s == 'á'
-                                || s == 'ä'
-                                || s == 'â')
-                            t="a";
-                        else if ( s == 'è'
-                                  || s == 'é'
-                                  || s == 'ê'
-                                  || s == 'ë')
-                            t="e";
-                        else if ( s == 'ì'
-                                  || s == 'í'
-                                  || s == 'î'
-                                  || s == 'ï')
-                            t="i";
-                        else if ( s == 'ó'
-                                  || s == 'ò'
-                                  || s == 'ö'
-                                  || s == 'ô')
-                            t="o";
-                        else if ( s == 'ù'
-                                  || s == 'ú'
-                                  || s == 'û'
-                                  || s == 'ü')
-                            t="u";
-                        else if ( s == 'þ' || s == 'Þ')
-                            t="th";
-                        else if ( s == 'æ')
-                            t="ae";
-                        else if ( s == 'ß')
-                            t="ss";
-                        else if ( s == 'ý')
-                            t="y";
-                        else if ( s == 'ð')
-                            t="d";
-                        else if ( s == 'ç')
-                            t="c";
-                        else
-                            t=Character.toString(s);
-
-                        // DO CAPITALIZE
-                        if ( ii==0 || isPreUpperChar( nn.charAt(ii-1 ) ))
-                            sb.append(t.toUpperCase());
-                        else
-                            sb.append(t);
-                    }
-                }
-                j++;
-            }
-            if ( sb.charAt( sb.length()-1 ) != '-' && tok.hasMoreTokens() )
+        for ( int i=0; i<ch.length; i++ ) {
+            switch ( ch[i] ) {
+            case '[':
+            case ']':
+            case '(':
+            case ')':
+            case '{':
+            case '}':
+            case '<':
+            case '>':
+            case '«':
+            case '»':
+            case ':':
+            case ';':
+            case '&':
+            case '/':
+            case '\\':
+            case '+':
                 sb.append('-');
+                break;
+
+            case ' ':
+            case ',':
+            case '.':
+            case '!':
+            case '?':
+            case '¿':
+            case '°':
+            case '#':
+            case '@':
+            case '"':
+            case '“':
+            case '*':
+            case '%':
+            case '~':
+            case '¡':
+            case '·':
+            case '©':
+            case '®':
+                sb.append('_');
+                break;
+
+            case 'è':
+            case 'é':
+            case 'ê':
+            case 'ë':
+                sb.append("e'");
+                break;
+
+            case 'ó':
+            case 'ò':
+            case 'ö':
+            case 'ô':
+            case 'õ':
+            case 'ø':
+                sb.append("o'");
+                break;
+
+            case 'ì':
+            case 'í':
+            case 'î':
+            case 'ï':
+                sb.append("i'");
+                break;
+
+            case 'ù':
+            case 'ú':
+            case 'û':
+            case 'ü':
+                sb.append("u'");
+                break;
+
+            case 'à':
+            case 'á':
+            case 'â':
+            case 'ä':
+            case 'å':
+            case 'ã':
+                sb.append("a'");
+                break;
+
+            case 'ð':
+                sb.append('d');
+                break;
+
+            case 'æ':
+                sb.append("ae");
+                break;
+
+            case 'Þ':
+                sb.append('t');
+                break;
+
+            case 'ñ':
+                sb.append('n');
+                break;
+
+            case 'ß':
+                sb.append("ss");
+                break;
+
+            case 'ý':
+            case 'ÿ':
+                sb.append('y');
+                break;
+
+            case 'ç':
+                sb.append('c');
+                break;
+
+            case '×':
+                sb.append('x');
+                break;
+
+            default:
+                sb.append(ch[i]);
+                break;
+            }
         }
 
-        String res = sb.toString();
+        String res = capitalize( sb.toString() );
+
         if (res.indexOf("Cd")>-1) res=res.replaceAll( "(?i)cd_*", "CD"  );
         if (res.indexOf("Lp")>-1) res=res.replaceAll( "(?i)lp_*", "LP"  );
         if (res.indexOf("Ep")>-1) res=res.replaceAll( "(?i)ep_*", "EP"  );
         if (res.indexOf("Divx")>-1) res=res.replaceAll( "(?i)divx", "DivX"  );
         if (res.indexOf("Ost")>-1) res=res.replaceAll( "(?i)ost", "OST"  );
 
-        return res;
+        return cleanString(res, true).trim();
     }
 
 
     /**
-     * The program uppercases a char if this check returns true.
-     *
-     * @param a The Char.
-     * @return true or false.
-     */
+    * The program uppercases a char if this check returns true.
+    *
+    * @param a The Char.
+    * @return true or false.
+    */
     final private static boolean isPreUpperChar( char a ) {
         return ( Character.isWhitespace(a)
                  || a == '-'

@@ -95,7 +95,7 @@ public class CnxString extends File {
 
 
     /**
-     * Returns the set destonation filename.
+     * Returns the set destination filename.
      *
      * @return The destination.
      */
@@ -103,6 +103,26 @@ public class CnxString extends File {
         StringBuilder res = new StringBuilder();
         res.append ( dest ).append ( ext );
         return res.toString();
+    }
+
+
+    /**
+     * Returns the set destination name without extension.
+     *
+     * @return The destination.
+     */
+    public String getDestNoExt() {
+        return dest;
+    }
+
+
+    /**
+     * Set the destination with string.
+     *
+     * @param tt The destination filename.
+     */
+    public void setDest ( String tt ) {
+        dest = tt;
     }
 
 
@@ -161,72 +181,6 @@ public class CnxString extends File {
         StringBuilder res = new StringBuilder();
         res.append ( dest ).append ( ext );
         return getName().equals( res.toString() );
-    }
-
-
-    /**
-     * Set the destination with string.
-     *
-     * @param tt The destination filename.
-     */
-    public void setDest ( String tt ) {
-        dest = Str.cleanString(tt, false);
-    }
-
-
-    /**
-     * Adds an underscore before uppercase characters.
-     * FooBar will be Foo_Bar
-     */
-    public void destUnderscore ( ) {
-        dest=Str.destUnderscore(dest);
-    }
-
-
-    /**
-     * Replaces filename extension.
-     *
-     * @param newExt New extension.
-     */
-    public void destNewExtension ( String newExt ) {
-        ext = newExt.toLowerCase();
-    }
-
-
-    /**
-     * Converts camel-case_versus_c to case_versus_c-camel.
-     *
-     * @param pos
-     */
-    public void destSwapPos ( String pos ) {
-        dest=Str.destSwapPos( dest, pos );
-    }
-
-
-    /**
-     * Destination filename will be String-##.ext
-     *
-     * @param tt The String.
-     * @param pos The number ##.
-     */
-    public void getSequenceName ( String tt, int pos ) {
-        String pp = "";
-        if ( pos > 9 )
-            pp += pos;
-        else
-            pp += "0" + pos;
-        dest = tt.replace ( "##", pp );
-    }
-
-
-    /**
-     * Replaces character at position N with string.
-     *
-     * @param param Param is a string "IntegerPosition-String".
-     */
-    public void destReplaceChar ( String param ) {
-        String swap[] = Str.split( param, '-');
-        dest = Str.replaceCharAtPosWithString ( dest, swap[1], Integer.parseInt ( swap[ 0 ] ) - 1 );
     }
 
 

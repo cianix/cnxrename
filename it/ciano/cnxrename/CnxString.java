@@ -9,13 +9,11 @@
 package it.ciano.cnxrename;
 
 import java.io.IOException;
-import java.io.BufferedReader;
 import java.io.File;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
-import java.util.ArrayList;
 import java.lang.StringBuilder;
-import java.util.Arrays;
+
 
 /**
  * Class to manage filename renaming.

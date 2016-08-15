@@ -167,9 +167,9 @@ public class CnxRename {
                 dest=dest.replace( '\'', '\0' );
 
             if ( PAR.isSet("ns") )
-                dest=Str.cleanString( dest, true ).trim();
+                dest=Str.cleanString( dest, true ).trim().replace(' ', '_');
             else if ( PAR.isSet("ds")  )
-                dest = Str.cleanString( dest, true ).replace('_', ' ').replaceAll("-", " - ").trim();
+                dest = Str.cleanString( dest, true ).replaceAll("-", " - ").trim();
 
             if ( PAR.isSet("cp") )
                 dest = Str.capitalize ( dest );

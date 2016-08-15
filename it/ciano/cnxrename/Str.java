@@ -83,10 +83,18 @@ public class Str {
     public static String cleanString( String s, boolean ns ) {
         char[] ch = s.toCharArray();
         for ( int i=0; i<ch.length; i++ )
-            if ( ch[i]=='–' )
+            switch ( ch[i] ) {
+            case '–':
                 ch[i]='-';
-            else if( ch[i]=='`' || ch[i]=='´' || ch[i]=='‘' || ch[i]=='’' )
+                break;
+
+            case '`':
+            case '´':
+            case '‘':
+            case '’':
                 ch[i]='\'';
+                break;
+            }
 
         if (ns) {
             boolean dash=false;
@@ -426,10 +434,10 @@ public class Str {
     */
     final private static boolean isPreUpperChar( char a ) {
         return ( Character.isWhitespace(a)
+                 || a == '_'
                  || a == '-'
                  || a == '.'
                  || (a>='0' && a<='9')
-                 || a == '_'
                  || a == '\'');
     }
 

@@ -270,16 +270,18 @@ public class Str {
      * @return Capitalized String.
      */
     public static String capitalize ( String strn ) {
-        StringBuilder buf = new StringBuilder();
         char[] ch = strn.toLowerCase().toCharArray();
-        buf.append ( Character.toUpperCase ( ch[ 0 ] ) );
-        for ( int i = 1; i < ch.length; ++i ) {
-            if ( isPreUpperChar(ch[i-1]) )
-                buf.append ( Character.toUpperCase ( ch[i] ) );
-            else
-                buf.append ( ch[i] );
+        ch[0]=Character.toUpperCase ( ch[0] );
+        for ( int i = 1; i < ch.length-1; ++i ) {
+            if ( Character.isWhitespace(ch[i])
+                    || ch[i] == '_'
+                    || ch[i] == '-'
+                    || (ch[i]>='0' && ch[i]<='9')
+                    || ch[i] == '.'
+                    || ch[i] == '\'')
+                ch[i+1]=Character.toUpperCase ( ch[i+1] );
         }
-        return buf.toString();
+        return new String(ch);
     }
 
 
@@ -423,22 +425,6 @@ public class Str {
         if (res.indexOf("Ost")>-1) res=res.replaceAll( "(?i)ost", "OST"  );
 
         return cleanString(res, true).trim();
-    }
-
-
-    /**
-    * The program uppercases a char if this check returns true.
-    *
-    * @param a The Char.
-    * @return true or false.
-    */
-    final private static boolean isPreUpperChar( char a ) {
-        return ( Character.isWhitespace(a)
-                 || a == '_'
-                 || a == '-'
-                 || a == '.'
-                 || (a>='0' && a<='9')
-                 || a == '\'');
     }
 
 } // END CLASS

@@ -72,7 +72,7 @@ An example of *txt* file is:
  11. True Love Waits
 ~~~~~
 
-The fist line is always:
+The first line is always:
 
 	Artist :: Album title (year)
 
@@ -82,7 +82,7 @@ It's possible to set an author for each track with:
 
 	number. Artist :: song title
 
-A more complex example with two CD and various artists:
+A more complex example with two CD in a Various Artists release:
 
 ~~~~~
  AA.VV. :: Punk Generation (2007)
@@ -128,6 +128,8 @@ A more complex example with two CD and various artists:
  20. Bad Religion :: The Handshake
 ~~~~~
 
+cnxrename looks for the "-- CDnumber" to change the CD number.
+The resulted filename has the CD number as prefix.
 
 ## BUGS
 

@@ -423,6 +423,7 @@ public class Str {
         if (res.indexOf("Ep")>-1) res=res.replaceAll( "(?i)ep_*", "EP"  );
         if (res.indexOf("Divx")>-1) res=res.replaceAll( "(?i)divx", "DivX"  );
         if (res.indexOf("Ost")>-1) res=res.replaceAll( "(?i)ost", "OST"  );
+        if (res.indexOf("Aa_Vv")>-1) res=res.replaceAll( "(?i)aa_vv", "AA.VV."  );
 
         return cleanString(res, true).trim();
     }

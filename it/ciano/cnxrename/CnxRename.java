@@ -36,8 +36,8 @@ public class CnxRename {
     /**
      * Informations used to print copyright string.
      */
-    final private static String version = "5.0.2";
-    final private static String date = "Aug 6, 2016";
+    final private static String version = "5.0.3";
+    final private static String date = "Oct 5, 2016";
     final private static String copyright = "2016";
     final private static String author = "Luciano Xumerle <luciano.xumerle@gmail.com>";
     final private static String name = "CNXRENAME";

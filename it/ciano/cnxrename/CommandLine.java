@@ -68,7 +68,7 @@ public class CommandLine {
      * @param numOfPar How many fields are not to be consider parameters.
      */
     public CommandLine ( int numOfPar ) {
-        this ( numOfPar, "1970" );
+        this ( numOfPar, "2015" );
     }
 
 

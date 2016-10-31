@@ -305,15 +305,23 @@ public class CDDB {
      * @return true or false.
      */
     private boolean addSong ( String line, int i ) {
-        int dot = line.indexOf ( ". " );
-        int dpdp = line.indexOf ( "::" );
+        int dot = -1;
+        int dpdp = -1;
+        int comment = -1;
 
-        int comment=line.indexOf ( "##" );
-        if (comment<0)
-            comment=line.length();
+        for(int j=0; j<line.length()-1; j++) {
+            if ( dot==-1 && line.charAt(j)=='.' && line.charAt(j+1)==' ' && Str.isInteger ( line.substring ( 0, j ) )  )
+                dot=j;
+            else if ( dpdp==-1 && line.charAt(j)==':' && line.charAt(j+1)==':'   )
+                dpdp=j;
+            else if ( comment==-1 && line.charAt(j)=='#' && line.charAt(j+1)=='#'   )
+                comment=j;
+        }
 
-        if ( dot > -1 && Str.isInteger ( line.substring ( 0, dot ) ) ) {
-            if ( dpdp>0 ) {
+        if ( dot > -1 ) {
+            if (comment<0)
+                comment=line.length();
+            if ( dpdp>0 && dpdp>dot ) {
                 artists[i]=line.substring ( dot+1,dpdp ).trim();
                 songs[i]=line.substring ( dpdp+2, comment ).trim();
             } else {

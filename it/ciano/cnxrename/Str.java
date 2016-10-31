@@ -342,7 +342,7 @@ public class Str {
             case 'é':
             case 'ê':
             case 'ë':
-                sb.append("e'");
+                sb.append('e');
                 break;
 
             case 'ó':
@@ -351,21 +351,21 @@ public class Str {
             case 'ô':
             case 'õ':
             case 'ø':
-                sb.append("o'");
+                sb.append('o');
                 break;
 
             case 'ì':
             case 'í':
             case 'î':
             case 'ï':
-                sb.append("i'");
+                sb.append('i');
                 break;
 
             case 'ù':
             case 'ú':
             case 'û':
             case 'ü':
-                sb.append("u'");
+                sb.append('u');
                 break;
 
             case 'à':
@@ -374,7 +374,7 @@ public class Str {
             case 'ä':
             case 'å':
             case 'ã':
-                sb.append("a'");
+                sb.append('a');
                 break;
 
             case 'ð':

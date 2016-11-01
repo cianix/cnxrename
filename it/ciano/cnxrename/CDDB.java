@@ -77,16 +77,14 @@ public class CDDB {
         // track number start from 1
         int trackNum=1;
         boxNum=0;
-
         index=0;
 
+        isArtistTitleOK = setArtistTitleYear ( fileLines[0].trim() );
         String line;
-        for ( int row = 0; row < fileLines.length; row++ ) {
+        for ( int row = 1; row < fileLines.length; row++ ) {
             line = fileLines[row].trim();
             if ( line.length() > 0 ) {
-                if ( row==0 )
-                    isArtistTitleOK = setArtistTitleYear ( line );
-                else if ( line.indexOf ( "-- CD" ) > -1 ) {
+                if ( line.indexOf ( "-- CD" ) > -1 ) {
                     boxNum+=100;
                     trackNum=1;
                 } else {

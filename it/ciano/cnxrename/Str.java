@@ -342,6 +342,7 @@ public class Str {
             case 'é':
             case 'ê':
             case 'ë':
+            case 'э':
                 sb.append('e');
                 break;
 
@@ -358,6 +359,7 @@ public class Str {
             case 'í':
             case 'î':
             case 'ï':
+            case 'и':
                 sb.append('i');
                 break;
 
@@ -377,7 +379,12 @@ public class Str {
                 sb.append('a');
                 break;
 
+            case 'б':
+                sb.append('b');
+                break;
+
             case 'ð':
+            case 'д':
                 sb.append('d');
                 break;
 
@@ -386,10 +393,16 @@ public class Str {
                 break;
 
             case 'Þ':
+            case 'т':
                 sb.append('t');
                 break;
 
+            case 'м':
+                sb.append('m');
+                break;
+
             case 'ñ':
+            case 'н':
                 sb.append('n');
                 break;
 
@@ -408,6 +421,22 @@ public class Str {
 
             case '×':
                 sb.append('x');
+                break;
+
+            case 'я':
+                sb.append("ya");
+                break;
+
+            case 'ф':
+                sb.append('f');
+                break;
+
+            case 'г':
+                sb.append('g');
+                break;
+
+            case 'л':
+                sb.append('l');
                 break;
 
             default:

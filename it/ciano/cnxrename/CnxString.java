@@ -191,4 +191,15 @@ public class CnxString extends File {
         return ext;
     }
 
+
+    /**
+     * Replaces the file extension with the given String.
+     *
+     * @param ne The new file extension.
+     */
+    public void replaceEXT( String ne ) {
+        ext='.'+ne.trim();
+    }
+
+
 } // CLOSE CLASS

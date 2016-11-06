@@ -10,12 +10,9 @@ package it.ciano.cnxrename;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.FileReader;
-import java.util.Arrays;
 import java.util.ArrayList;
-import java.util.Stack;
 
 
 /**
@@ -203,41 +200,12 @@ public class Str {
      * @return true or false.
      */
     final public static boolean isInteger ( String s ) {
-        char[] a = s.trim().toCharArray();
-        for ( int i=0; i<a.length; i++ )
-            if ( a[i]<'0' || a[i]>'9' )
-                return false;
-        return true;
-    }
-
-
-    /**
-     * Parses a directory tree.
-     *
-     * @param path Startpath to be parsed.
-     * @param rec If true, recursive.
-     * @param onlyFile If true, reports only file.
-     * @return The File list.
-     */
-    public static File[] find (  File path, boolean rec, boolean onlyFile ) {
-        ArrayList <File> a = new ArrayList <File> ();
-        Stack<File> stack = new Stack<File>();
-
-        for(File f : path.listFiles()) stack.push(f);
-
-        while(!stack.isEmpty()) {
-            File child = stack.pop();
-            if (rec && child.isDirectory()) {
-                for(File f : child.listFiles()) stack.push(f);
-                if ( !onlyFile )  a.add(child);
-            } else if (child.isFile()) {
-                a.add(child);
-            }
+        try {
+            int r = Integer.parseInt ( s.trim() );
+        } catch( NumberFormatException e ) {
+            return false;
         }
-
-        File[] res=a.toArray(new File[a.size()]);
-        Arrays.sort(res);
-        return res;
+        return true;
     }
 
 

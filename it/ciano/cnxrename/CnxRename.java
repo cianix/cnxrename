@@ -36,8 +36,8 @@ public class CnxRename {
     /**
      * Informations used to print copyright string.
      */
-    final private static String version = "5.0.4";
-    final private static String date = "Nov 1, 2016";
+    final private static String version = "5.1.0";
+    final private static String date = "Nov 6, 2016";
     final private static String copyright = "2016";
     final private static String author = "Luciano Xumerle <luciano.xumerle@gmail.com>";
     final private static String name = "CNXRENAME";
@@ -155,6 +155,7 @@ public class CnxRename {
                 if( PAR.isSet("d") ) FILE[i].setRenameDir();
                 FILE[i].replaceDest( search, replace );
             }
+            if( PAR.isSet("re") ) FILE[i].replaceEXT(PAR.getParValue("re"));
 
             String dest=Str.cleanString(FILE[i].getDestNoExt(), false);
 
@@ -243,6 +244,7 @@ public class CnxRename {
         parameter.addPar ( "ci", "String replace is case insensitive", false );
         parameter.addPar ( "g", "String replace is global", false );
         parameter.addPar ( "d", "Renames also directories", false );
+        parameter.addPar ( "re", "Replaces file extension", true );
         parameter.addPar ( "ka", "Not remove the accents from dest. name", false );
         parameter.addWhiteHelpLine ( "ka" );
 

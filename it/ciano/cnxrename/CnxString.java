@@ -9,7 +9,9 @@
 package it.ciano.cnxrename;
 
 import java.io.IOException;
-import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.Files;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.lang.StringBuilder;
@@ -19,11 +21,12 @@ import java.lang.StringBuilder;
  * Class to manage filename renaming.
  *
  * @author Luciano Xumerle
- * @version 0.6.0
+ * @version 0.7.0
  */
-public class CnxString extends File {
+public class CnxString {
 
     // destination name and file extension
+    private Path src;
     private String dest;
     private String ext;
 
@@ -37,9 +40,9 @@ public class CnxString extends File {
      *
      * @param ff The file to be renamed.
      */
-    public CnxString ( File ff )
+    public CnxString ( Path ff )
     throws java.io.IOException {
-        this ( ff, "" );
+        this( ff, "" );
     }
 
 
@@ -49,10 +52,10 @@ public class CnxString extends File {
      * @param ff The file to be renamed.
      * @param destination New filename.
      */
-    public CnxString ( File ff, String destination )
+    public CnxString ( Path ff, String destination )
     throws java.io.IOException {
-        super( ff.getCanonicalPath() );
-        String[] tt=Str.getFilenameExtension( getName() );
+        src = ff;
+        String[] tt=Str.getFilenameExtension( src.getFileName().toString() );
         ext = tt[1].toLowerCase();
 
         if ( destination.equals ( "" ) )
@@ -81,14 +84,28 @@ public class CnxString extends File {
      * Renames the file when destination is set.
      */
     public boolean destRename() {
-        if ( _renameDir == false && isDirectory() )
+        if ( _renameDir == false && Files.isDirectory( src ) )
             return false;
-        StringBuilder res = new StringBuilder();
-        res.append ( getParent() ).append( File.separator ).append ( dest ).append ( ext );
-        File temp = new File ( res.toString() );
-        if ( ! temp.exists() )
-            return renameTo ( temp );
+        Path res=src.getParent().resolve( dest + ext );
+        if ( ! Files.exists(res) ) {
+            try {
+                Files.move( src, res );
+                return true;
+            } catch( IOException e ) {
+                return false;
+            }
+        }
         return false;
+    }
+
+
+    /**
+     * Returns the original filename.
+     *
+     * @return The filename.
+     */
+    public String getName() {
+        return src.getFileName().toString();
     }
 
 
@@ -178,7 +195,7 @@ public class CnxString extends File {
     public boolean srcISdest () {
         StringBuilder res = new StringBuilder();
         res.append ( dest ).append ( ext );
-        return getName().equals( res.toString() );
+        return src.getFileName().toString().equals( res.toString() );
     }
 
 

@@ -24,6 +24,7 @@ cnxrename is a command line Java utility to recursively rename multiple files.
          -ci : String replace is case insensitive
           -g : String replace is global
           -d : Renames also directories
+   -re <par> : Replaces file extension
          -ka : Not remove the accents from dest. name
 
          -ns : Replaces multiple spaces and '_' with underscore
@@ -46,10 +47,12 @@ cnxrename is a command line Java utility to recursively rename multiple files.
   -cue <par> : du the CUE using <txt_file> and wavs in current directory
 ~~~~~~
 
+### Destination name from a txt file 
+
 The multimedia format aims to remove all non ASCII characters
 and all the spaces from the original filename.
 
-The txt file is used to rename all the tracks in a multimedia release.
+A txt file is used to rename all the tracks in a multimedia release.
 An example of *txt* file is:
 
 ~~~~~

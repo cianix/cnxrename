@@ -1,6 +1,6 @@
 /**
 
-Copyright 2016 Luciano Xumerle
+Copyright 2016-2017 Luciano Xumerle
 
 This file is part of cnxrename.
 
@@ -22,23 +22,25 @@ along with cnxrename. If not, see http://www.gnu.org/licenses/.
 package it.ciano.cnxrename;
 
 import java.util.Arrays;
-import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.Files;
 import java.io.IOException;
 
 /**
  * The Main Class
  *
  * @author Luciano Xumerle
- * @version 0.0.1
+ * @version 0.0.2
  */
 public class CnxRename {
 
     /**
      * Informations used to print copyright string.
      */
-    final private static String version = "5.1.0";
-    final private static String date = "Nov 6, 2016";
-    final private static String copyright = "2016";
+    final private static String version = "5.2.0";
+    final private static String date = "Aug 6, 2017";
+    final private static String copyright = "2016-2017";
     final private static String author = "Luciano Xumerle <luciano.xumerle@gmail.com>";
     final private static String name = "CNXRENAME";
 
@@ -81,20 +83,20 @@ public class CnxRename {
                 String dest=pos + "-";
                 if ( pos<10 )
                     dest=0+dest;
-                FILE[i]=new CnxString( new File( tt[i] ), dest + tt[i] );
+                FILE[i]=new CnxString( Paths.get( tt[i] ).toAbsolutePath(), dest + tt[i] );
             }
         } else if( PAR.isSet( "ls" ) ) {
             String[] tt = Str.readTXT ( PAR.getParValue("ls") );
             SIZE=tt.length;
             FILE=new CnxString[SIZE];
             for ( int i=0; i<tt.length; i++)
-                FILE[i]=new CnxString( new File( tt[i] ) );
+                FILE[i]=new CnxString( Paths.get( tt[i] ).toAbsolutePath() );
         } else {
             SIZE=PAR.getOptionalAdditionalParSize();
             FILE=new CnxString[SIZE];
             for( int i=1; i<=SIZE; i++ )
                 try {
-                    FILE[i-1]=new CnxString( new File( PAR.getOptionalAdditionalPar(i) ) );
+                    FILE[i-1]=new CnxString( Paths.get( PAR.getOptionalAdditionalPar(i) ).toAbsolutePath() );
                 } catch( IOException e ) {
                     System.err.println("File or directory " + PAR.getOptionalAdditionalPar(i) + "not found!!!");
                 }
@@ -165,7 +167,7 @@ public class CnxRename {
                 dest=dest + PAR.getParValue("sx");
 
             if ( ! PAR.isSet("ka") )
-                dest=dest.replace( '\'', '\0' );
+                dest=dest.replaceAll( "\'", "" );
 
             if ( PAR.isSet("ns") )
                 dest=Str.cleanString( dest, true ).trim().replace(' ', '_');

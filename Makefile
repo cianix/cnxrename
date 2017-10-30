@@ -13,6 +13,10 @@ install: all
 	echo 'system( "/usr/bin/java", "-jar", "${DEST}/share/cnxrename/cnxrename.jar", @ARGV );' >> ${DEST}/bin/cnxrename
 	chmod 755 ${DEST}/bin/cnxrename
 
+python:
+	rm -fr ${DEST}/bin/cnxrename
+	install -m 755 p3cnxrename.py ${DEST}/bin/cnxrename
+
 uninstall:
 	if [[ -d ${DEST}/share/cnxrename ]] ; then rm -fr ${DEST}/share/cnxrename ; fi
 	if [[ -f ${DEST}/bin/cnxrename ]] ; rm ${DEST}/bin/cnxrename ; fi

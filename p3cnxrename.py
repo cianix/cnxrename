@@ -196,8 +196,8 @@ def replaceFixedString( src ):
       [r'\busa\b', "USA"],
       [r'\bus\b', "US"],
       [r'\buk\b', "UK"],
-      [r'\bvv\.aa\.\b', "AA.VV."],
-      [r'\baa\.vv\.\b', "AA.VV."]
+      [r'\bvv\.aa\.', "AA.VV."],
+      [r'\baa\.vv\.', "AA.VV."]
    ]
 
    tt = src
@@ -211,12 +211,12 @@ def cleanString( src ):
    """
    Cleans multiple spaces and dashes and replaces apostrophes
    """
-   src=re.sub( """[\-–]+""", "-", src )
+   src=re.sub( """^[\-\s_]+""", "", src)
+   src=re.sub( """[\-\s_]+$""", "", src)
+   src=re.sub( """[\-–]""", "-", src )
+   src=re.sub( """[\s\-_]*-[\s\-_]*""", "-", src )
    src=re.sub( """[\s_]+""", " ", src )
-   src=re.sub( """\s*-\s*-\s*""", "-", src )
    src=re.sub( """[`´‘’]+""", "'", src)
-   src=re.sub( """^[\-\s]+""", "", src)
-   src=re.sub( """[\-\s]+$""", "", src)
    return src
 
 

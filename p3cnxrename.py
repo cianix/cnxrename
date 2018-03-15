@@ -52,8 +52,8 @@ def doMsg():
    """
    Print the copyright information
    """
-   version = '4.0.1beta'
-   date = 'Oct 29, 2017'
+   version = '4.0.2beta'
+   date = 'Mar 15, 2018'
    r1 = "cnxrename version " + version + " (" + date + ")"
    r2 = "Copyright 2007-2017 by Luciano Xumerle <luciano.xumerle@gmail.com>"
    r3 = "This is free software; see the source for copying conditions. There is NO"

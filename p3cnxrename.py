@@ -316,14 +316,14 @@ def readCDDB( cddbFile ):
             tit = line[ dot + 1: ].strip()
             dot = tit.find( "::" )
             if dot > -1:
-               artist=tit[ :dot ].strip()
-               tit=tit[ dot+2: ].strip()
+               artist = tit[ :dot ].strip()
+               tit = tit[ dot+2: ].strip()
             dot = tit.find( "##" )
             if dot > -1:
-               tit==tit[ :dot ].strip()
+               tit = tit[ :dot ].strip()
             num=str(cd+tn)
             if len(num)<2:
-               num="0"+num
+               num = "0"+num
             cddb.snum.append(num)
             cddb.sartist.append( artist )
             cddb.stitle.append( tit )

@@ -52,10 +52,10 @@ def doMsg():
    """
    Print the copyright information
    """
-   version = '4.0.2beta'
-   date = 'Mar 15, 2018'
+   version = '4.0.3'
+   date = 'Jul 1, 2023'
    r1 = "cnxrename version " + version + " (" + date + ")"
-   r2 = "Copyright 2007-2017 by Luciano Xumerle <luciano.xumerle@gmail.com>"
+   r2 = "Copyright 2007-2023 by Luciano Xumerle <luciano.xumerle@gmail.com>"
    r3 = "This is free software; see the source for copying conditions. There is NO"
    r4 = "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
    r5 = "[-h] : Print help."
@@ -143,6 +143,8 @@ def toASCII( text ):
       u'«': u'-',
       u'»': u'-',
       u'`': u"'",
+      u'"': u"_",
+      u',': u'_',
       u':': u'-',
       u';': u'-',
       u'?': u'_',
@@ -169,7 +171,10 @@ def toASCII( text ):
       if char in tabax.keys():
          dest += tabax[char]
       else:
-         dest+= char
+         if char.isascii():
+            dest+= char
+         else:
+            dest+="_"
    return dest
 
 
@@ -230,6 +235,15 @@ def toM2( src, keepAccent ):
       src=src.replace( "'", "" )
    return replaceFixedString( src.title() )
 
+
+def toFile( src ):
+       """
+       Cleans string, convert to ASCII characters and removes apostrophe and spaces
+       Used to have filenames with only ASCII characters and no spaces
+       """
+       tmp = cleanString( toASCII( src ) ).replace( "'", "" ).replace( ".", "_" )
+       tmp = re.compile( '-[\s_\-]*-' ).sub( "-", tmp, count=0)
+       return re.compile( '[\s_]+' ).sub( "_", tmp, count=0)
 
 
 def swapPosition ( src, pos ):
@@ -438,6 +452,7 @@ def main():
 
    parser.add_option("--ns", default=False, action="store_true", dest="ns", help="Replaces spaces and '_' with underscore")
    parser.add_option("--ds", default=False, action="store_true", dest="ds", help="Replaces spaces and '_' with space, and '-' with ' - '")
+   parser.add_option("--tf", default=False, action="store_true", dest="tf", help="Used to have destination file with ASCII chars and no spaces")
    parser.add_option("--cp", default=False, action="store_true", dest="cp", help="Capitalize words in filename")
    parser.add_option("--m1", default=False, action="store_true", dest="m1", help="Rename with multimedia format")
    parser.add_option("--m2", default=False, action="store_true", dest="m2", help="Rename with -m1 but '_' is space")
@@ -534,19 +549,15 @@ def main():
       if opt.swap != "":
          a.dest=swapPosition( a.dest, opt.swap )
 
+      # suffix & prefix
+      a.dest = opt.px + a.dest + opt.sx
+
       # rename to fixed incremental list
       if opt.ai != "":
          a.dest=rename2sequencedName( a.dest, opt.ai, len(toRename)+1 )
 
-      # clean String
+      # clean String: remove multiple spaces / underscore
       a.dest=cleanString(a.dest)
-
-      # keep accent if required
-      if not opt.ka:
-         a.dest=a.dest.replace( "'", "" )
-
-      # suffix & prefix
-      a.dest = opt.px + a.dest + opt.sx
 
       # rename options
       if opt.ds:
@@ -565,7 +576,12 @@ def main():
          a.dest=toM2( a.dest, opt.ka ).replace( "-", " - " )
       elif opt.m4:
          a.dest=toM2( a.dest, opt.ka ).replace( " ", "" )
+      elif opt.tf:
+         a.dest=toFile( a.dest )
 
+      # keep accent if required - remove accent by default
+      if not opt.ka:
+         a.dest=a.dest.replace( "'", "" )
 
       # upper case or lower case
       if opt.lc:
